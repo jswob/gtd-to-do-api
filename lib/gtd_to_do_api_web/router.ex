@@ -7,5 +7,7 @@ defmodule GtdToDoApiWeb.Router do
 
   scope "/api", GtdToDoApiWeb do
     pipe_through :api
+
+    resources "/users", UserController, exept: [:new, :edit, :index]
   end
 end
