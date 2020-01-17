@@ -20,6 +20,7 @@ defmodule GtdToDoApiWeb.ConnCase do
       # Import conveniences for testing with connections
       use Phoenix.ConnTest
       alias GtdToDoApiWeb.Router.Helpers, as: Routes
+      import GtdToDoApi.TestHelpers
 
       # The default endpoint for testing
       @endpoint GtdToDoApiWeb.Endpoint
