@@ -22,6 +22,7 @@ defmodule GtdToDoApi.DataCase do
       import Ecto.Changeset
       import Ecto.Query
       import GtdToDoApi.DataCase
+      import GtdToDoApi.TestHelpers
     end
   end
 
