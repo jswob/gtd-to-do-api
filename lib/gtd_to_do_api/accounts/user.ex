@@ -5,7 +5,7 @@ defmodule GtdToDoApi.Accounts.User do
   schema "users" do
     field :avatar_url, :string
     field :email, :string
-    field :password, :string, virutal: true
+    field :password, :string, virtual: true
     field :password_hash, :string
 
     timestamps()
