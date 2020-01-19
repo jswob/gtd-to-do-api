@@ -3,7 +3,6 @@ Ecto.Adapters.SQL.Sandbox.mode(GtdToDoApi.Repo, :manual)
 
 defmodule GtdToDoApi.TestHelpers do
   alias GtdToDoApi.Accounts
-  alias GtdToDoApi.Accounts.User
 
   @current_user_attrs %{
     avatar_url: "some avatar_url",

@@ -1,7 +1,6 @@
 defmodule GtdToDoApiWeb.UserControllerTest do
-  use GtdToDoApiWeb.ConnCase
+  use GtdToDoApiWeb.ConnCase, async: true
 
-  alias GtdToDoApi.Accounts
   alias GtdToDoApi.Accounts.User
 
   @create_attrs %{
@@ -41,8 +40,13 @@ defmodule GtdToDoApiWeb.UserControllerTest do
   end
 
   describe "update user" do
-    setup [:create_user]
+    setup %{conn: conn} do
+      user = user_fixture()
+      conn = assign(conn, :current_user, user)
+      {:ok, conn: conn, user: user}
+    end
 
+    @tag timeout: :infinity
     test "renders user when data is valid", %{conn: conn, user: %User{id: id} = user} do
       conn = put(conn, Routes.user_path(conn, :update, user), user: @update_attrs)
       assert %{"id" => ^id} = json_response(conn, 200)["data"]
@@ -63,15 +67,18 @@ defmodule GtdToDoApiWeb.UserControllerTest do
   end
 
   describe "delete user" do
-    setup [:create_user]
+    setup %{conn: conn} do
+      user = user_fixture()
+      conn = assign(conn, :current_user, user)
+      {:ok, conn: conn, user: user}
+    end
 
     test "deletes chosen user", %{conn: conn, user: user} do
       conn = delete(conn, Routes.user_path(conn, :delete, user))
       assert response(conn, 204)
 
-      assert_error_sent 404, fn ->
-        get(conn, Routes.user_path(conn, :show, user))
-      end
+      assert %{assigns: %{message: "Unauthenticated user"}} =
+               get(conn, Routes.user_path(conn, :show, user))
     end
   end
 
