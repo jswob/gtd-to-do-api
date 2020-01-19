@@ -1,16 +1,20 @@
 defmodule GtdToDoApiWeb.UserController do
   use GtdToDoApiWeb, :controller
 
-  alias GtdToDoApi.Accounts
   alias GtdToDoApi.Accounts.User
+  alias GtdToDoApi.Accounts
+  alias GtdToDoApi.Auth
 
   action_fallback GtdToDoApiWeb.FallbackController
+
+  plug :ensure_authenticated when action in [:show, :update, :delete, :sign_out]
 
   def create(conn, %{"user" => user_params}) do
     with {:ok, %User{} = user} <- Accounts.create_user(user_params) do
       conn
       |> put_status(:created)
       |> put_resp_header("location", Routes.user_path(conn, :show, user))
+      |> put_session(:user_id, user.id)
       |> render("show.json", user: user)
     end
   end
@@ -24,7 +28,9 @@ defmodule GtdToDoApiWeb.UserController do
     user = Accounts.get_user!(id)
 
     with {:ok, %User{} = user} <- Accounts.update_user(user, user_params) do
-      render(conn, "show.json", user: user)
+      conn
+      |> put_session(:user_id, user.id)
+      |> render("show.json", user: user)
     end
   end
 
@@ -34,5 +40,26 @@ defmodule GtdToDoApiWeb.UserController do
     with {:ok, %User{}} <- Accounts.delete_user(user) do
       send_resp(conn, :no_content, "")
     end
+  end
+
+  def sing_in(conn, %{"email" => email, "password" => password}) do
+    case Auth.authenticate_user(email, password) do
+      {:ok, user} ->
+        conn
+        |> put_session(:user_id, user.id)
+        |> put_status(:ok)
+        |> render("sign_in.json", user: user)
+
+      {:error, message} ->
+        conn
+        |> delete_session(:user_id)
+        |> put_status(:unauthorized)
+        |> put_view(GtdToDoApiWeb.ErrorView)
+        |> render("401.json", message: message)
+    end
+  end
+
+  def sign_out(conn, _params) do
+    configure_session(conn, drop: true)
   end
 end
