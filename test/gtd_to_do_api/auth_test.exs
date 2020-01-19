@@ -51,9 +51,6 @@ defmodule GtdToDoApi.AuthTest do
     user_password = "some password"
     %User{id: id, email: email} = user_fixture(%{password: user_password})
 
-    require IEx
-    IEx.pry()
-
     assert {:ok, %User{id: ^id}} = Auth.authenticate_user(email, user_password)
   end
 
