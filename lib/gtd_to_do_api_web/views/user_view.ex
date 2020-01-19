@@ -14,4 +14,21 @@ defmodule GtdToDoApiWeb.UserView do
       avatar_url: user.avatar_url
     }
   end
+
+  def render("sign_in.json", %{user: user}) do
+    %{
+      data: %{
+        id: user.id,
+        email: user.email
+      }
+    }
+  end
+
+  def render("sign_out.json", _params) do
+    %{
+      data: %{
+        message: "session was succesfully deleted"
+      }
+    }
+  end
 end

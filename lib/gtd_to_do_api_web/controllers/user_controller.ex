@@ -42,7 +42,7 @@ defmodule GtdToDoApiWeb.UserController do
     end
   end
 
-  def sing_in(conn, %{"email" => email, "password" => password}) do
+  def sign_in(conn, %{"email" => email, "password" => password}) do
     case Auth.authenticate_user(email, password) do
       {:ok, user} ->
         conn
@@ -60,6 +60,8 @@ defmodule GtdToDoApiWeb.UserController do
   end
 
   def sign_out(conn, _params) do
-    configure_session(conn, drop: true)
+    conn
+    |> configure_session(drop: true)
+    |> render("sign_out.json", %{})
   end
 end
