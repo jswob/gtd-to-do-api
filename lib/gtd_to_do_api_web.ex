@@ -48,6 +48,7 @@ defmodule GtdToDoApiWeb do
       use Phoenix.Router
       import Plug.Conn
       import Phoenix.Controller
+      import GtdToDoApi.Auth, only: [ensure_authenticated: 2]
     end
   end
 

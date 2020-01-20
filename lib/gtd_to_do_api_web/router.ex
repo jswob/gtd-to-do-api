@@ -9,10 +9,6 @@ defmodule GtdToDoApiWeb.Router do
     plug Auth
   end
 
-  pipeline :api_auth do
-    plug Auth, :ensure_authenticated
-  end
-
   scope "/api", GtdToDoApiWeb do
     pipe_through :api
 
@@ -22,6 +18,8 @@ defmodule GtdToDoApiWeb.Router do
   end
 
   scope "/api", GtdToDoApiWeb do
-    pipe_through [:api, :api_auth]
+    pipe_through [:api, :ensure_authenticated]
+
+    resources "/collections", CollectionController, exept: [:new, :edit]
   end
 end
