@@ -22,10 +22,10 @@ defmodule GtdToDoApi.Collections do
     Repo.all(Collection)
   end
 
-  def list_users_collections(%User{id: owner_id}) do
-    query = from(c in Collection, where: c.owner_id == ^owner_id)
-
-    Repo.all(query)
+  def list_users_collections(user) do
+    user
+    |> users_collection_query()
+    |> Repo.all()
   end
 
   @doc """
@@ -44,10 +44,10 @@ defmodule GtdToDoApi.Collections do
   """
   def get_collection!(id), do: Repo.get!(Collection, id)
 
-  def get_users_collection!(%User{id: owner_id}, id) do
-    query = from(c in Collection, where: c.owner_id == ^owner_id)
-
-    Repo.get(query, id)
+  def get_users_collection!(user, id) do
+    user
+    |> users_collection_query()
+    |> Repo.get(id)
   end
 
   @doc """
@@ -114,5 +114,9 @@ defmodule GtdToDoApi.Collections do
   """
   def change_collection(%Collection{} = collection) do
     Collection.changeset(collection, %{})
+  end
+
+  defp users_collection_query(%User{id: owner_id}) do
+    from(c in Collection, where: c.owner_id == ^owner_id)
   end
 end
