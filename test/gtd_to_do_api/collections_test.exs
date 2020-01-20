@@ -2,6 +2,7 @@ defmodule GtdToDoApi.CollectionsTest do
   use GtdToDoApi.DataCase
 
   alias GtdToDoApi.Collections
+  alias GtdToDoApi.Accounts.User
 
   describe "collections" do
     alias GtdToDoApi.Collections.Collection
@@ -31,6 +32,22 @@ defmodule GtdToDoApi.CollectionsTest do
       owner = user_fixture()
       %Collection{id: id} = collection_fixture(owner)
       assert %Collection{id: ^id} = Collections.get_collection!(id)
+    end
+
+    test "get_users_collection!/2 returns the collection if user and id are correct" do
+      %User{id: owner_id} = owner = user_fixture()
+      %Collection{id: collection_id} = collection_fixture(owner)
+
+      assert %Collection{id: ^collection_id, owner_id: ^owner_id} =
+               Collections.get_users_collection!(owner, collection_id)
+    end
+
+    test "get_users_collection!/2 returns error if user or id are wrong" do
+      owner = user_fixture()
+      second_user = user_fixture(%{email: "second user"})
+      %Collection{id: collection_id} = collection_fixture(owner)
+
+      assert nil == Collections.get_users_collection!(second_user, collection_id)
     end
 
     test "create_collection/1 with valid data creates a collection" do
