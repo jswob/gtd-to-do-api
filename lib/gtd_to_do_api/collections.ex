@@ -44,6 +44,12 @@ defmodule GtdToDoApi.Collections do
   """
   def get_collection!(id), do: Repo.get!(Collection, id)
 
+  def get_users_collection!(%User{id: owner_id}, id) do
+    query = from(c in Collection, where: c.owner_id == ^owner_id)
+
+    Repo.get(query, id)
+  end
+
   @doc """
   Creates a collection.
 
