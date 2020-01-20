@@ -5,6 +5,8 @@ defmodule GtdToDoApi.TestHelpers do
   alias GtdToDoApi.Accounts
   alias GtdToDoApi.Collections
 
+  alias Plug.Test
+
   @current_user_attrs %{
     avatar_url: "some avatar_url",
     email: "some email",
@@ -28,5 +30,11 @@ defmodule GtdToDoApi.TestHelpers do
     {:ok, collection} = Collections.create_collection(owner, attrs)
 
     collection
+  end
+
+  def setup_test_session(conn, attrs \\ %{}) do
+    owner = user_fixture(attrs)
+
+    {:ok, %{conn: Test.init_test_session(conn, user_id: owner.id), owner: owner}}
   end
 end
