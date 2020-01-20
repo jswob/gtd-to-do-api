@@ -15,7 +15,7 @@ defmodule GtdToDoApi.Collections.Collection do
   @doc false
   def changeset(collection, attrs) do
     collection
-    |> cast(attrs, [:name, :color, :has_childs])
-    |> validate_required([:name, :color, :has_childs])
+    |> cast(attrs, [:name, :color])
+    |> validate_required([:name])
   end
 end
