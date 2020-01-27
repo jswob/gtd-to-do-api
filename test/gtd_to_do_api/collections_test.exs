@@ -182,5 +182,34 @@ defmodule GtdToDoApi.CollectionsTest do
 
       assert %Ecto.Changeset{} = Collections.change_subcollection(subcollection)
     end
+
+    test "list_subcollections_from_collection/1 returns all subcollections from given collection" do
+      owner = user_fixture()
+
+      first_collection = collection_fixture(owner)
+      second_collection = collection_fixture(owner)
+
+      %Subcollection{id: first_subcollection_id} = subcollection_fixture(owner, first_collection)
+      %Subcollection{id: second_subcollection_id} = subcollection_fixture(owner, first_collection)
+      subcollection_fixture(owner, second_collection)
+
+      listed_subcollections = Collections.list_subcollections_from_collection(first_collection)
+
+      assert [
+               %Subcollection{id: ^second_subcollection_id},
+               %Subcollection{id: ^first_subcollection_id}
+             ] = listed_subcollections
+
+      assert 2 == Enum.count(listed_subcollections)
+    end
+
+    test "get_collection_subcollection/2 return subcollection with given id if in given collection" do
+      owner = user_fixture()
+      collection = collection_fixture(owner)
+      subcollection = subcollection_fixture(owner, collection)
+
+      assert subcollection ==
+               Collections.get_collection_subcollection(collection, subcollection.id)
+    end
   end
 end
