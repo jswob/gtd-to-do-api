@@ -8,6 +8,7 @@ defmodule GtdToDoApi.Collections.Collection do
     field :name, :string
 
     belongs_to :owner, GtdToDoApi.Accounts.User
+    has_many :subcollections, GtdToDoApi.Collections.Subcollection
 
     timestamps()
   end
