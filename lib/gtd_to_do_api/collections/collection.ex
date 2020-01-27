@@ -4,7 +4,6 @@ defmodule GtdToDoApi.Collections.Collection do
 
   schema "collections" do
     field :color, :string
-    field :has_childs, :boolean, default: false
     field :name, :string
 
     belongs_to :owner, GtdToDoApi.Accounts.User
