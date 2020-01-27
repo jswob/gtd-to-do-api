@@ -73,7 +73,6 @@ defmodule GtdToDoApi.CollectionsTest do
                Collections.update_collection(collection, @update_attrs)
 
       assert collection.color == "some updated color"
-      assert collection.has_childs == false
       assert collection.name == "some updated name"
     end
 
@@ -100,6 +99,88 @@ defmodule GtdToDoApi.CollectionsTest do
       owner = user_fixture()
       collection = collection_fixture(owner)
       assert %Ecto.Changeset{} = Collections.change_collection(collection)
+    end
+  end
+
+  describe "subcollection" do
+    alias GtdToDoApi.Collections.Subcollection
+
+    @valid_attrs %{color: "some color", name: "some name"}
+    @update_attrs %{color: "some updated color", name: "some updated name"}
+    @invalid_attrs %{color: nil, name: nil}
+
+    test "list_subcollection/0 returns all subcollection" do
+      owner = user_fixture()
+      collection = collection_fixture(owner)
+      %Subcollection{id: subcollection_id} = subcollection_fixture(owner, collection)
+      assert [%Subcollection{id: ^subcollection_id}] = Collections.list_subcollection()
+    end
+
+    test "get_subcollection!/1 returns the subcollection with given id" do
+      owner = user_fixture()
+      collection = collection_fixture(owner)
+      %Subcollection{id: subcollection_id} = subcollection_fixture(owner, collection)
+
+      assert %Subcollection{id: ^subcollection_id} =
+               Collections.get_subcollection!(subcollection_id)
+    end
+
+    test "create_subcollection/1 with valid data creates a subcollection" do
+      owner = user_fixture()
+      collection = collection_fixture(owner)
+
+      {:ok, subcollection} = Collections.create_subcollection(owner, collection.id, @valid_attrs)
+
+      assert subcollection.color == "some color"
+      assert subcollection.name == "some name"
+    end
+
+    test "create_subcollection/1 with invalid data returns error changeset" do
+      owner = user_fixture()
+      collection = collection_fixture(owner)
+
+      assert {:error, %Ecto.Changeset{}} =
+               Collections.create_subcollection(owner, collection.id, @invalid_attrs)
+    end
+
+    test "update_subcollection/2 with valid data updates the subcollection" do
+      owner = user_fixture()
+      collection = collection_fixture(owner)
+      subcollection = subcollection_fixture(owner, collection)
+
+      assert {:ok, %Subcollection{} = subcollection} =
+               Collections.update_subcollection(subcollection, @update_attrs)
+
+      assert subcollection.color == "some updated color"
+      assert subcollection.name == "some updated name"
+    end
+
+    test "update_subcollection/2 with invalid data returns error changeset" do
+      owner = user_fixture()
+      collection = collection_fixture(owner)
+      subcollection = subcollection_fixture(owner, collection)
+
+      assert {:error, %Ecto.Changeset{}} =
+               Collections.update_subcollection(subcollection, @invalid_attrs)
+
+      assert subcollection == Collections.get_subcollection!(subcollection.id)
+    end
+
+    test "delete_subcollection/1 deletes the subcollection" do
+      owner = user_fixture()
+      collection = collection_fixture(owner)
+      subcollection = subcollection_fixture(owner, collection)
+
+      assert {:ok, %Subcollection{}} = Collections.delete_subcollection(subcollection)
+      assert_raise Ecto.NoResultsError, fn -> Collections.get_subcollection!(subcollection.id) end
+    end
+
+    test "change_subcollection/1 returns a subcollection changeset" do
+      owner = user_fixture()
+      collection = collection_fixture(owner)
+      subcollection = subcollection_fixture(owner, collection)
+
+      assert %Ecto.Changeset{} = Collections.change_subcollection(subcollection)
     end
   end
 end
