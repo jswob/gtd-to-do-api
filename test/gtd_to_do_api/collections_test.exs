@@ -3,10 +3,9 @@ defmodule GtdToDoApi.CollectionsTest do
 
   alias GtdToDoApi.Collections
   alias GtdToDoApi.Accounts.User
+  alias GtdToDoApi.Collections.Collection
 
   describe "collections" do
-    alias GtdToDoApi.Collections.Collection
-
     @valid_attrs %{color: "some color", name: "some name"}
     @update_attrs %{color: "some updated color", name: "some updated name"}
     @invalid_attrs %{color: nil, name: nil}
@@ -107,7 +106,7 @@ defmodule GtdToDoApi.CollectionsTest do
 
     @valid_attrs %{color: "some color", name: "some name"}
     @update_attrs %{color: "some updated color", name: "some updated name"}
-    @invalid_attrs %{color: nil, name: nil}
+    @invalid_attrs %{color: nil, name: nil, collection_id: nil}
 
     test "list_subcollection/0 returns all subcollection" do
       owner = user_fixture()
@@ -127,20 +126,20 @@ defmodule GtdToDoApi.CollectionsTest do
 
     test "create_subcollection/1 with valid data creates a subcollection" do
       owner = user_fixture()
-      collection = collection_fixture(owner)
+      %Collection{id: collection_id} = collection_fixture(owner)
 
-      {:ok, subcollection} = Collections.create_subcollection(owner, collection.id, @valid_attrs)
+      attrs = Enum.into(%{collection_id: collection_id}, @valid_attrs)
+
+      {:ok, subcollection} = Collections.create_subcollection(owner, attrs)
 
       assert subcollection.color == "some color"
       assert subcollection.name == "some name"
+      assert subcollection.collection_id == collection_id
     end
 
     test "create_subcollection/1 with invalid data returns error changeset" do
       owner = user_fixture()
-      collection = collection_fixture(owner)
-
-      assert {:error, %Ecto.Changeset{}} =
-               Collections.create_subcollection(owner, collection.id, @invalid_attrs)
+      assert {:error, %Ecto.Changeset{}} = Collections.create_subcollection(owner, @invalid_attrs)
     end
 
     test "update_subcollection/2 with valid data updates the subcollection" do

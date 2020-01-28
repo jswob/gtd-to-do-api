@@ -15,7 +15,7 @@ defmodule GtdToDoApi.Collections.Subcollection do
   @doc false
   def changeset(subcollection, attrs) do
     subcollection
-    |> cast(attrs, [:name, :color])
-    |> validate_required([:name])
+    |> cast(attrs, [:name, :color, :collection_id])
+    |> validate_required([:name, :color, :collection_id])
   end
 end

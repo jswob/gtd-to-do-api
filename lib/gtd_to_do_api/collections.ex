@@ -85,8 +85,8 @@ defmodule GtdToDoApi.Collections do
     Repo.get!(list_subcollections_query(collection), subcollection_id)
   end
 
-  def create_subcollection(%User{id: owner_id}, collection_id, attrs) do
-    %Subcollection{owner_id: owner_id, collection_id: collection_id}
+  def create_subcollection(%User{id: owner_id}, attrs) do
+    %Subcollection{owner_id: owner_id}
     |> Subcollection.changeset(attrs)
     |> Repo.insert()
   end
