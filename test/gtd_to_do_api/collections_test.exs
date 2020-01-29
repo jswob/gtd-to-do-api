@@ -124,7 +124,7 @@ defmodule GtdToDoApi.CollectionsTest do
                Collections.get_subcollection!(subcollection_id)
     end
 
-    test "create_subcollection/1 with valid data creates a subcollection" do
+    test "create_subcollection/2 with valid data creates a subcollection" do
       owner = user_fixture()
       %Collection{id: collection_id} = collection_fixture(owner)
 
@@ -137,9 +137,19 @@ defmodule GtdToDoApi.CollectionsTest do
       assert subcollection.collection_id == collection_id
     end
 
-    test "create_subcollection/1 with invalid data returns error changeset" do
+    test "create_subcollection/2 with invalid data returns error changeset" do
       owner = user_fixture()
       assert {:error, %Ecto.Changeset{}} = Collections.create_subcollection(owner, @invalid_attrs)
+    end
+
+    test "create_subcollection/2 returns error changeset if selected collection has wrong owner" do
+      first_owner = user_fixture()
+      second_owner = user_fixture(%{email: "some different email"})
+
+      collection = collection_fixture(first_owner)
+      attrs = Enum.into(%{collection_id: collection.id}, @valid_attrs)
+
+      assert {:error, %Ecto.Changeset{}} = Collections.create_subcollection(second_owner, attrs)
     end
 
     test "update_subcollection/2 with valid data updates the subcollection" do
