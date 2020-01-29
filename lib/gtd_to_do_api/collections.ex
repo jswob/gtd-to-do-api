@@ -86,14 +86,9 @@ defmodule GtdToDoApi.Collections do
   end
 
   def create_subcollection(%User{id: owner_id}, attrs) do
-    changeset = Subcollection.changeset(%Subcollection{owner_id: owner_id}, attrs)
-
-    if changeset.valid? &&
-         get_collection!(attrs.collection_id).owner_id == owner_id do
-      Repo.insert(changeset)
-    else
-      {:error, changeset}
-    end
+    %Subcollection{owner_id: owner_id}
+    |> Subcollection.changeset(attrs)
+    |> Repo.insert()
   end
 
   defp list_subcollections_query(%Collection{} = collection) do

@@ -17,5 +17,28 @@ defmodule GtdToDoApi.Collections.Subcollection do
     subcollection
     |> cast(attrs, [:name, :color, :collection_id])
     |> validate_required([:name, :color, :collection_id])
+    |> check_if_collection_has_proper_owner()
   end
+
+  defp check_if_collection_has_proper_owner(
+         %Ecto.Changeset{
+           valid?: true,
+           changes: %{collection_id: collection_id},
+           data: %{owner_id: owner_id}
+         } = changeset
+       ) do
+    collection_owner = GtdToDoApi.Collections.get_collection!(collection_id).owner_id
+
+    if collection_owner == owner_id do
+      changeset
+    else
+      Ecto.Changeset.add_error(
+        changeset,
+        :collection_id,
+        "The owner of the collection is not you"
+      )
+    end
+  end
+
+  defp check_if_collection_has_proper_owner(changeset), do: changeset
 end
