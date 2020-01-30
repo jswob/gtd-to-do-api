@@ -14,8 +14,7 @@ defmodule GtdToDoApiWeb.CollectionView do
     %{
       id: collection.id,
       name: collection.name,
-      color: collection.color,
-      has_childs: collection.has_childs
+      color: collection.color
     }
   end
 end
