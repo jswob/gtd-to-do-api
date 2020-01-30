@@ -1,9 +1,13 @@
 defmodule GtdToDoApi.TestHelpers do
+  use Phoenix.ConnTest
+  @endpoint GtdToDoApiWeb.Endpoint
+
   alias GtdToDoApi.Accounts
   alias GtdToDoApi.Collections
 
   alias GtdToDoApi.Accounts.User
   alias GtdToDoApi.Collections.Collection
+  alias GtdToDoApiWeb.Router.Helpers, as: Routes
 
   alias Plug.Test
 
@@ -48,6 +52,11 @@ defmodule GtdToDoApi.TestHelpers do
   def setup_test_session(conn, attrs \\ %{}) do
     owner = user_fixture(attrs)
 
-    {:ok, %{conn: Test.init_test_session(conn, user_id: owner.id), owner: owner}}
+    conn =
+      conn
+      |> Test.init_test_session(user_id: owner.id)
+      |> get(Routes.user_path(conn, :show, owner.id))
+
+    {:ok, %{conn: conn}}
   end
 end
