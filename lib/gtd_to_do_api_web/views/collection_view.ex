@@ -13,7 +13,7 @@ defmodule GtdToDoApiWeb.CollectionView do
   def render("collection.json", %{collection: collection}) do
     %{
       id: collection.id,
-      name: collection.name,
+      title: collection.title,
       color: collection.color
     }
   end

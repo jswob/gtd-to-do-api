@@ -1,18 +1,17 @@
 defmodule GtdToDoApiWeb.CollectionControllerTest do
   use GtdToDoApiWeb.ConnCase, async: true
 
-  alias GtdToDoApi.Collections
   alias GtdToDoApi.Collections.Collection
 
   @create_attrs %{
     color: "some color",
-    name: "some name"
+    title: "some title"
   }
   @update_attrs %{
     color: "some updated color",
-    name: "some updated name"
+    title: "some updated title"
   }
-  @invalid_attrs %{color: nil, name: nil}
+  @invalid_attrs %{color: nil, title: nil}
 
   setup %{conn: conn} do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
@@ -62,8 +61,7 @@ defmodule GtdToDoApiWeb.CollectionControllerTest do
       assert %{
                "id" => id,
                "color" => "some color",
-               "has_childs" => false,
-               "name" => "some name"
+               "title" => "some title"
              } = json_response(conn, 200)["data"]
     end
 
@@ -92,8 +90,7 @@ defmodule GtdToDoApiWeb.CollectionControllerTest do
       assert %{
                "id" => id,
                "color" => "some updated color",
-               "has_childs" => false,
-               "name" => "some updated name"
+               "title" => "some updated title"
              } = json_response(conn, 200)["data"]
     end
 
@@ -120,7 +117,13 @@ defmodule GtdToDoApiWeb.CollectionControllerTest do
   end
 
   defp create_collection(conn) do
-    {:ok, %{conn: conn, owner: owner}} = setup_test_session(conn)
-    {:ok, %{conn: conn, collection: collection_fixture(owner), owner: owner}}
+    {:ok, %{conn: conn}} = setup_test_session(conn)
+
+    {:ok,
+     %{
+       conn: conn,
+       collection: collection_fixture(conn.assigns.current_user),
+       owner: conn.assigns.current_user
+     }}
   end
 end
