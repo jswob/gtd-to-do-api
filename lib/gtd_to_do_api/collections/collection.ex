@@ -4,10 +4,9 @@ defmodule GtdToDoApi.Collections.Collection do
 
   schema "collections" do
     field :color, :string
-    field :name, :string
+    field :title, :string
 
     belongs_to :owner, GtdToDoApi.Accounts.User
-    has_many :subcollections, GtdToDoApi.Collections.Subcollection
 
     timestamps()
   end
@@ -15,7 +14,7 @@ defmodule GtdToDoApi.Collections.Collection do
   @doc false
   def changeset(collection, attrs) do
     collection
-    |> cast(attrs, [:name, :color])
-    |> validate_required([:name])
+    |> cast(attrs, [:title, :color])
+    |> validate_required([:title, :color])
   end
 end
