@@ -26,7 +26,7 @@ defmodule GtdToDoApi.TestHelpers do
     user
   end
 
-  @valid_collection_attrs %{color: "some color", name: "some name"}
+  @valid_collection_attrs %{color: "some color", title: "some title"}
 
   def collection_fixture(%User{} = owner, attrs \\ %{}) do
     attrs = Enum.into(attrs, @valid_collection_attrs)
