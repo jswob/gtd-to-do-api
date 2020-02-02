@@ -26,6 +26,16 @@ defmodule GtdToDoApi.TestHelpers do
     user
   end
 
+  @valid_bucket_attrs %{color: "some color", title: "some title"}
+
+  def bucket_fixture(%User{} = owner, attrs \\ %{}) do
+    attrs = Enum.into(attrs, @valid_bucket_attrs)
+
+    {:ok, bucket} = GtdToDoApi.Containers.create_bucket(owner, attrs)
+
+    bucket
+  end
+
   @valid_collection_attrs %{color: "some color", title: "some title"}
 
   def collection_fixture(%User{} = owner, attrs \\ %{}) do
