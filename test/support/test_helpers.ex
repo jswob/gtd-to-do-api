@@ -59,6 +59,16 @@ defmodule GtdToDoApi.TestHelpers do
     subcollection
   end
 
+  @valid_list_attrs %{color: "some color", title: "some title"}
+
+  def list_fixture(%User{} = user, %Collection{} = collection, attrs \\ %{}) do
+    attrs = Enum.into(attrs, @valid_list_attrs)
+
+    {:ok, list} = Collections.create_list(user, collection, attrs)
+
+    list
+  end
+
   def setup_test_session(conn, attrs \\ %{}) do
     owner = user_fixture(attrs)
 
