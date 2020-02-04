@@ -221,4 +221,99 @@ defmodule GtdToDoApi.CollectionsTest do
   #              Collections.get_collection_subcollection(collection, subcollection.id)
   #   end
   # end
+
+  describe "lists" do
+    alias GtdToDoApi.Collections.List
+
+    @valid_attrs %{color: "some color", title: "some title"}
+    @update_attrs %{color: "some updated color", title: "some updated title"}
+    @invalid_attrs %{color: nil, title: nil}
+
+    test "list_lists/0 returns all lists" do
+      owner = user_fixture()
+      collection = collection_fixture(owner)
+      %List{id: list_id} = list_fixture(owner, collection)
+      assert [%List{id: ^list_id}] = Collections.list_lists()
+    end
+
+    test "list_collection_lists/1 returns all lists for given collection" do
+      owner = user_fixture()
+
+      collection_1 = collection_fixture(owner)
+      collection_2 = collection_fixture(owner)
+
+      %List{id: list_id_1} = list_fixture(owner, collection_1)
+      %List{id: list_id_2} = list_fixture(owner, collection_1)
+      list_fixture(owner, collection_2)
+
+      assert [
+               %List{id: ^list_id_2},
+               %List{id: ^list_id_1}
+             ] = Collections.list_collection_lists(collection_1)
+
+      assert Enum.count(Collections.list_collection_lists(collection_1)) == 2
+    end
+
+    test "get_list!/1 returns the list with given id" do
+      owner = user_fixture()
+      collection = collection_fixture(owner)
+      %List{id: list_id} = list_fixture(owner, collection)
+      assert %List{id: ^list_id} = Collections.get_list!(list_id)
+    end
+
+    test "get_collection_list!/2 returns the list with given collection and id" do
+      owner = user_fixture()
+      collection = collection_fixture(owner)
+      %List{id: list_id} = list_fixture(owner, collection)
+      assert %List{id: ^list_id} = Collections.get_collection_list!(collection, list_id)
+    end
+
+    test "create_list/3 with valid data creates a list" do
+      owner = user_fixture()
+      collection = collection_fixture(owner)
+      assert {:ok, %List{} = list} = Collections.create_list(owner, collection, @valid_attrs)
+      assert list.color == "some color"
+      assert list.title == "some title"
+    end
+
+    test "create_list/3 with invalid data returns error changeset" do
+      owner = user_fixture()
+      collection = collection_fixture(owner)
+
+      assert {:error, %Ecto.Changeset{}} =
+               Collections.create_list(owner, collection, @invalid_attrs)
+    end
+
+    test "update_list/2 with valid data updates the list" do
+      owner = user_fixture()
+      collection = collection_fixture(owner)
+      list = list_fixture(owner, collection)
+      assert {:ok, %List{} = list} = Collections.update_list(list, @update_attrs)
+      assert list.color == "some updated color"
+      assert list.title == "some updated title"
+    end
+
+    test "update_list/2 with invalid data returns error changeset" do
+      owner = user_fixture()
+      collection = collection_fixture(owner)
+      %List{id: list_id} = list = list_fixture(owner, collection)
+      assert {:error, %Ecto.Changeset{}} = Collections.update_list(list, @invalid_attrs)
+      assert %List{id: ^list_id} = Collections.get_list!(list_id)
+    end
+
+    test "delete_list/1 deletes the list" do
+      owner = user_fixture()
+      collection = collection_fixture(owner)
+      list = list_fixture(owner, collection)
+      assert {:ok, %List{}} = Collections.delete_list(list)
+      assert_raise Ecto.NoResultsError, fn -> Collections.get_list!(list.id) end
+    end
+
+    test "change_list/1 returns a list changeset" do
+      owner = user_fixture()
+      collection = collection_fixture(owner)
+      list = list_fixture(owner, collection)
+      assert %Ecto.Changeset{} = Collections.change_list(list)
+    end
+  end
 end
