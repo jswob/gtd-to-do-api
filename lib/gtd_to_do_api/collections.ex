@@ -143,19 +143,19 @@ defmodule GtdToDoApi.Collections do
   def get_list!(id), do: Repo.get!(List, id)
 
   @doc """
-  Gets a single list for given collection.
+  Gets a single list for given user.
 
   ## Examples
 
-      iex> get_collection_list!(collection, 123)
+      iex> get_user_list!(owner, 123)
       %List{}
 
-      iex> get_collection_list!(collection, 456)
+      iex> get_user_list!(owner, 456)
       ** (Ecto.NoResultsError)
 
   """
-  def get_collection_list!(%Collection{} = collection, id),
-    do: Repo.get!(list_lists_query(collection), id)
+  def get_user_list!(%User{id: user_id}, id),
+    do: Repo.get!(from(l in List, where: l.owner_id == ^user_id), id)
 
   @doc """
   Creates a list.
