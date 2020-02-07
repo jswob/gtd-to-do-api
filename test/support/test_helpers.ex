@@ -4,9 +4,11 @@ defmodule GtdToDoApi.TestHelpers do
 
   alias GtdToDoApi.Accounts
   alias GtdToDoApi.Collections
+  alias GtdToDoApi.Tasks
 
   alias GtdToDoApi.Accounts.User
   alias GtdToDoApi.Collections.Collection
+  alias GtdToDoApi.Collections.List
   alias GtdToDoApiWeb.Router.Helpers, as: Routes
 
   alias Plug.Test
@@ -67,6 +69,20 @@ defmodule GtdToDoApi.TestHelpers do
     {:ok, list} = Collections.create_list(user, collection, attrs)
 
     list
+  end
+
+  @valid_task_attrs %{content: "some content", is_done: false}
+
+  def task_fixture(attrs \\ %{}) do
+    owner = user_fixture()
+    collection = collection_fixture(owner)
+    list = list_fixture(owner, collection)
+
+    attrs = Enum.into(attrs, @valid_task_attrs)
+
+    {:ok, task} = Tasks.create_task(owner, list, attrs)
+
+    %{task: task, owner: owner, list: list}
   end
 
   def setup_test_session(conn, attrs \\ %{}) do
