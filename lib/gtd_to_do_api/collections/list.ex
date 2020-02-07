@@ -8,6 +8,7 @@ defmodule GtdToDoApi.Collections.List do
 
     belongs_to :owner, GtdToDoApi.Accounts.User
     belongs_to :collection, GtdToDoApi.Collections.Collection
+    has_many :tasks, GtdToDoApi.Tasks.Task
 
     timestamps()
   end
