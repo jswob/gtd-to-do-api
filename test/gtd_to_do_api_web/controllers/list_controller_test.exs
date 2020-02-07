@@ -1,7 +1,6 @@
 defmodule GtdToDoApiWeb.ListControllerTest do
   use GtdToDoApiWeb.ConnCase
 
-  alias GtdToDoApi.Collections
   alias GtdToDoApi.Collections.List
 
   @create_attrs %{

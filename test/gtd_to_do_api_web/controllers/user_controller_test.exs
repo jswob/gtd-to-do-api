@@ -78,7 +78,7 @@ defmodule GtdToDoApiWeb.UserControllerTest do
     end
 
     test "sign_out drop session", %{conn: conn} do
-      user = user_fixture(@create_attrs)
+      user_fixture()
 
       conn =
         post(

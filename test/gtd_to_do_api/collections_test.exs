@@ -265,7 +265,7 @@ defmodule GtdToDoApi.CollectionsTest do
       owner = user_fixture()
       collection = collection_fixture(owner)
       %List{id: list_id} = list_fixture(owner, collection)
-      assert %List{id: ^list_id} = Collections.get_collection_list!(owner, list_id)
+      assert %List{id: ^list_id} = Collections.get_user_list!(owner, list_id)
     end
 
     test "create_list/3 with valid data creates a list" do

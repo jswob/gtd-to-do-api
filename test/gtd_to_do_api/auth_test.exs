@@ -47,16 +47,14 @@ defmodule GtdToDoApi.AuthTest do
     assert conn.assigns[:current_user] == nil
   end
 
-  test "authenticate_user/2 returns {:ok, user} if email and password are ok", %{conn: conn} do
+  test "authenticate_user/2 returns {:ok, user} if email and password are ok" do
     user_password = "some password"
     %User{id: id, email: email} = user_fixture(%{password: user_password})
 
     assert {:ok, %User{id: ^id}} = Auth.authenticate_user(email, user_password)
   end
 
-  test "authenticate_user/2 returns {:error, message} if email or password are wrong", %{
-    conn: conn
-  } do
+  test "authenticate_user/2 returns {:error, message} if email or password are wrong" do
     assert {:error, "Could not find user"} = Auth.authenticate_user("wrong email", "wrong pass")
   end
 end
