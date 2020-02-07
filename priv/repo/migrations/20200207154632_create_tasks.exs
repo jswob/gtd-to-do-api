@@ -5,7 +5,7 @@ defmodule GtdToDoApi.Repo.Migrations.CreateTasks do
     create table(:tasks) do
       add :content, :string
       add :is_done, :boolean, default: false, null: false
-      add :owner_id, references(:user, on_delete: :nothing)
+      add :owner_id, references(:users, on_delete: :nothing)
       add :list_id, references(:lists, on_delete: :nothing)
 
       timestamps()
