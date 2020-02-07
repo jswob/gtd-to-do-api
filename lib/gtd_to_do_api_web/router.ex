@@ -21,7 +21,6 @@ defmodule GtdToDoApiWeb.Router do
     pipe_through [:api, :ensure_authenticated]
 
     resources "/collections", CollectionController, exept: [:new, :edit]
-    resources "/subcollections", SubcollectionController, exept: [:new, :edit]
     resources "/buckets", BucketController, exept: [:new, :edit]
     resources "/lists", ListController, exept: [:new, :edit]
     resources "/tasks", TaskController, exept: [:new, :edit]

@@ -52,49 +52,6 @@ defmodule GtdToDoApi.Collections do
     from(c in Collection, where: c.owner_id == ^owner_id)
   end
 
-  # subcollection
-  # //////////////////////////////////////////////////////////////
-
-  alias GtdToDoApi.Collections.Subcollection
-
-  def list_subcollection do
-    Repo.all(Subcollection)
-  end
-
-  def get_subcollection!(id), do: Repo.get!(Subcollection, id)
-
-  def update_subcollection(%Subcollection{} = subcollection, attrs) do
-    subcollection
-    |> Subcollection.changeset(attrs)
-    |> Repo.update()
-  end
-
-  def delete_subcollection(%Subcollection{} = subcollection) do
-    Repo.delete(subcollection)
-  end
-
-  def change_subcollection(%Subcollection{} = subcollection) do
-    Subcollection.changeset(subcollection, %{})
-  end
-
-  def list_subcollections_from_collection(collection) do
-    Repo.all(list_subcollections_query(collection))
-  end
-
-  def get_collection_subcollection(collection, subcollection_id) do
-    Repo.get!(list_subcollections_query(collection), subcollection_id)
-  end
-
-  def create_subcollection(%User{id: owner_id}, attrs) do
-    %Subcollection{owner_id: owner_id}
-    |> Subcollection.changeset(attrs)
-    |> Repo.insert()
-  end
-
-  defp list_subcollections_query(%Collection{} = collection) do
-    from(s in Ecto.assoc(collection, :subcollections))
-  end
-
   # list
   # /////////////////////////////////////////////////////////////
 
