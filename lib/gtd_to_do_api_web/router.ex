@@ -24,5 +24,6 @@ defmodule GtdToDoApiWeb.Router do
     resources "/subcollections", SubcollectionController, exept: [:new, :edit]
     resources "/buckets", BucketController, exept: [:new, :edit]
     resources "/lists", ListController, exept: [:new, :edit]
+    resources "/tasks", TaskController, exept: [:new, :edit]
   end
 end
