@@ -17,6 +17,21 @@ defmodule GtdToDoApiWeb.UserController do
       |> put_session(:user_id, user.id)
       |> render("show.json", user: user)
     end
+
+    case Accounts.create_user(user_params) do
+      {:ok, %User{} = user} ->
+        conn
+        |> put_status(:created)
+        |> put_resp_header("location", Routes.user_path(conn, :show, user))
+        |> put_session(:user_id, user.id)
+        |> render("show.json", user: user)
+
+      {:error, changeset} ->
+        conn
+        |> put_status(422)
+        |> put_view(GtdToDoApiWeb.ErrorView)
+        |> render("422.json", changeset: changeset)
+    end
   end
 
   def show(conn, %{"id" => id}) do
