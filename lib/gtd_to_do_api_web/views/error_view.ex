@@ -8,4 +8,15 @@ defmodule GtdToDoApiWeb.ErrorView do
   def render("401.json", %{message: message}) do
     %{errors: %{detail: message}}
   end
+
+  def render("422.json", %{changeset: changeset}) do
+    errors =
+      Enum.map(changeset.errors, fn error ->
+        {key, {detail, _}} = error
+
+        %{key => detail}
+      end)
+
+    %{errors: errors}
+  end
 end
