@@ -17,12 +17,11 @@ defmodule GtdToDoApiWeb.UserView do
     }
   end
 
-  def render("sign_in.json", %{user: user}) do
+  def render("sign_in.json", %{token: token}) do
     %{
-      data: %{
-        id: user.id,
-        email: user.email
-      }
+      access_token: token,
+      token_type: "bearer",
+      expires_in: 15
     }
   end
 

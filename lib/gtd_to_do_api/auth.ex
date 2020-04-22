@@ -50,7 +50,12 @@ defmodule GtdToDoApi.Auth do
 
   defp verify_password(user, password) do
     if Bcrypt.verify_pass(password, user.password_hash) do
-      {:ok, user}
+      {:ok,
+       Phoenix.Token.sign(
+         GtdToDoApiWeb.Endpoint,
+         Application.fetch_env!(:gtd_to_do_api, :token_salt),
+         user.id
+       )}
     else
       {:error, "Wrong email or password"}
     end

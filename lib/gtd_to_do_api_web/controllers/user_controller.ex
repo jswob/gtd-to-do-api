@@ -59,11 +59,10 @@ defmodule GtdToDoApiWeb.UserController do
 
   def sign_in(conn, %{"username" => email, "password" => password}) do
     case Auth.authenticate_user(email, password) do
-      {:ok, user} ->
+      {:ok, token} ->
         conn
-        |> put_session(:user_id, user.id)
         |> put_status(:ok)
-        |> render("sign_in.json", user: user)
+        |> render("sign_in.json", token: token)
 
       {:error, message} ->
         conn
