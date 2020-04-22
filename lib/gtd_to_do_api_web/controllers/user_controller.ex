@@ -57,7 +57,7 @@ defmodule GtdToDoApiWeb.UserController do
     end
   end
 
-  def sign_in(conn, %{"email" => email, "password" => password}) do
+  def sign_in(conn, %{"username" => email, "password" => password}) do
     case Auth.authenticate_user(email, password) do
       {:ok, user} ->
         conn
