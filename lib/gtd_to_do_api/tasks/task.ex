@@ -17,5 +17,6 @@ defmodule GtdToDoApi.Tasks.Task do
     task
     |> cast(attrs, [:content, :is_done])
     |> validate_required([:content, :is_done])
+    |> validate_length(:content, min: 1, max: 65)
   end
 end

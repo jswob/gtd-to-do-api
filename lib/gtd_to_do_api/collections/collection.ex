@@ -17,6 +17,7 @@ defmodule GtdToDoApi.Collections.Collection do
   def changeset(collection, attrs) do
     collection
     |> cast(attrs, [:title, :color])
-    |> validate_required([:title, :color])
+    |> validate_required([:title])
+    |> validate_length(:title, min: 1, max: 15)
   end
 end
