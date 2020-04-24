@@ -59,6 +59,9 @@ defmodule GtdToDoApi.Auth do
 
       {:error, :token_expired} ->
         {:error, "Refresh token expired"}
+
+      _ ->
+        {:error, "Bad token"}
     end
   end
 

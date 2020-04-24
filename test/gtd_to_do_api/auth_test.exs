@@ -48,7 +48,7 @@ defmodule GtdToDoApi.AuthTest do
     assert conn.assigns[:current_user] == nil
   end
 
-  test "authenticate_user/2 returns {:ok, user} if email and password are ok" do
+  test "authenticate_user/2 returns {:ok, token, refresh_token, expiration} if email and password are ok" do
     user_password = "some password"
     %User{id: id, email: email} = user_fixture(%{password: user_password})
 
@@ -63,5 +63,22 @@ defmodule GtdToDoApi.AuthTest do
 
   test "authenticate_user/2 returns {:error, message} if email or password are wrong" do
     assert {:error, "Could not find user"} = Auth.authenticate_user("wrong email", "wrong pass")
+  end
+
+  test "authenticate_user/1 returns {:ok, token, refresh_token, expiration} if token is correct" do
+    user = user_fixture()
+
+    {:ok, refresh_token, %{"sub" => id}} =
+      Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {1, :minute})
+
+    assert {:ok, token, refresh_token, expiration} = Auth.authenticate_user(refresh_token)
+    assert {:ok, %{"sub" => ^id}} = Guardian.decode_and_verify(token, %{})
+
+    assert {:ok, %{"sub" => ^id}} =
+             Guardian.decode_and_verify(refresh_token, %{"typ" => "refresh"})
+  end
+
+  test "authenticate_user/1 returns {:error, message} if token is bad" do
+    assert {:error, "Bad token"} = Auth.authenticate_user("bad_token")
   end
 end
