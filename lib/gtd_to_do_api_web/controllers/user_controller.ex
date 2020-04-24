@@ -57,16 +57,39 @@ defmodule GtdToDoApiWeb.UserController do
     end
   end
 
-  def sign_in(conn, %{"username" => email, "password" => password}) do
+  def sign_in(conn, %{"username" => email, "password" => password, "grant_type" => "password"}) do
     case Auth.authenticate_user(email, password) do
-      {:ok, token} ->
+      {:ok, access_token, refresh_token, exp} ->
         conn
         |> put_status(:ok)
-        |> render("sign_in.json", token: token)
+        |> render("sign_in.json",
+          access_token: access_token,
+          refresh_token: refresh_token,
+          exp: exp
+        )
 
       {:error, message} ->
         conn
         |> delete_session(:user_id)
+        |> put_status(:unauthorized)
+        |> put_view(GtdToDoApiWeb.ErrorView)
+        |> render("401.json", message: message)
+    end
+  end
+
+  def sign_in(conn, %{"refresh_token" => refresh_token, "grant_type" => "refresh_token"}) do
+    case Auth.authenticate_user(refresh_token) do
+      {:ok, access_token, refresh_token, exp} ->
+        conn
+        |> put_status(:ok)
+        |> render("sign_in.json",
+          access_token: access_token,
+          refresh_token: refresh_token,
+          exp: exp
+        )
+
+      {:error, message} ->
+        conn
         |> put_status(:unauthorized)
         |> put_view(GtdToDoApiWeb.ErrorView)
         |> render("401.json", message: message)

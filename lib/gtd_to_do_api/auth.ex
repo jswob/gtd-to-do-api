@@ -4,7 +4,9 @@ defmodule GtdToDoApi.Auth do
   import Ecto.Query
 
   alias GtdToDoApi.Accounts.User
+  alias GtdToDoApi.Accounts
   alias GtdToDoApi.Repo
+  alias GtdToDoApi.Guardian
 
   def init(opts), do: opts
 
@@ -15,7 +17,7 @@ defmodule GtdToDoApi.Auth do
       conn.assigns[:current_user] ->
         conn
 
-      user = current_user_id && GtdToDoApi.Accounts.get_user!(current_user_id) ->
+      user = current_user_id && Accounts.get_user!(current_user_id) ->
         assign(conn, :current_user, user)
 
       true ->
@@ -38,9 +40,26 @@ defmodule GtdToDoApi.Auth do
   def authenticate_user(email, password) do
     query = from(u in User, where: u.email == ^email)
 
-    query
-    |> Repo.one()
-    |> verify_password(password)
+    user = Repo.one(query)
+
+    case verify_password(user, password) do
+      {:ok, %User{} = user} ->
+        generate_tokens(user)
+
+      {:error, message} ->
+        {:error, message}
+    end
+  end
+
+  def authenticate_user(token) do
+    case Guardian.decode_and_verify(token, %{"typ" => "refresh"}) do
+      {:ok, claims} ->
+        user = Accounts.get_user!(claims["sub"])
+        generate_tokens(user)
+
+      {:error, :token_expired} ->
+        {:error, "Refresh token expired"}
+    end
   end
 
   defp verify_password(nil, _) do
@@ -50,14 +69,19 @@ defmodule GtdToDoApi.Auth do
 
   defp verify_password(user, password) do
     if Bcrypt.verify_pass(password, user.password_hash) do
-      {:ok,
-       Phoenix.Token.sign(
-         GtdToDoApiWeb.Endpoint,
-         Application.fetch_env!(:gtd_to_do_api, :token_salt),
-         user.id
-       )}
+      {:ok, user}
     else
       {:error, "Wrong email or password"}
     end
+  end
+
+  defp generate_tokens(%User{} = user) do
+    exp = 15
+    {:ok, access_token, _} = Guardian.encode_and_sign(user, %{}, ttl: {exp, :second})
+
+    {:ok, refresh_token, _} =
+      Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {1, :minute})
+
+    {:ok, access_token, refresh_token, exp}
   end
 end
