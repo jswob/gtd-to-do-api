@@ -48,19 +48,6 @@ defmodule GtdToDoApi.TestHelpers do
     collection
   end
 
-  @valid_subcollection_attrs %{color: "some color", name: "some name"}
-
-  def subcollection_fixture(%User{} = owner, %Collection{id: collection_id}, attrs \\ %{}) do
-    attrs =
-      attrs
-      |> Enum.into(%{collection_id: collection_id})
-      |> Enum.into(@valid_subcollection_attrs)
-
-    {:ok, subcollection} = Collections.create_subcollection(owner, attrs)
-
-    subcollection
-  end
-
   @valid_list_attrs %{color: "some color", title: "some title"}
 
   def list_fixture(%User{} = user, %Collection{} = collection, attrs \\ %{}) do
