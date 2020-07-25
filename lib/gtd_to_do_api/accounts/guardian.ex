@@ -1,4 +1,4 @@
-defmodule GtdToDoApi.Guardian do
+defmodule GtdToDoApi.Accounts.Guardian do
   use Guardian, otp_app: :gtd_to_do_api
 
   alias GtdToDoApi.Accounts.User
@@ -12,9 +12,10 @@ defmodule GtdToDoApi.Guardian do
     {:error, :bad_user}
   end
 
-  def resource_from_claims(claims) do
-    id = claims["sub"]
+  def resource_from_claims(%{"sub" => id}) do
     user = GtdToDoApi.Accounts.get_user!(id)
     {:ok, user}
+  rescue
+    Ecto.NoResultsError -> {:error, :resource_not_found}
   end
 end
