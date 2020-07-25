@@ -1,4 +1,4 @@
-defmodule GtdToDoApi.Accounts.Guardian do
+defmodule GtdToDoApi.Auth.Guardian do
   use Guardian, otp_app: :gtd_to_do_api
 
   alias GtdToDoApi.Accounts.User

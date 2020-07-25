@@ -25,10 +25,6 @@ config :logger, :console,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
-config :gtd_to_do_api, GtdToDoApi.Guardian,
-  issuer: "gtd_to_do_api",
-  secret_key: "bvDprI/cUUTDlpwNN3/mYeEaP17W/dvLTTLtSpx2sF0HQmkXFDntjE/XP014xUAT"
-
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env()}.exs"
