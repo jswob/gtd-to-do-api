@@ -8,7 +8,6 @@ defmodule GtdToDoApi.TestHelpers do
 
   alias GtdToDoApi.Accounts.User
   alias GtdToDoApi.Collections.Collection
-  alias GtdToDoApi.Collections.List
   alias GtdToDoApiWeb.Router.Helpers, as: Routes
 
   alias Plug.Test
@@ -70,6 +69,11 @@ defmodule GtdToDoApi.TestHelpers do
     {:ok, task} = Tasks.create_task(owner, list, attrs)
 
     %{task: task, owner: owner, list: list}
+  end
+
+  def token_fixture(%User{} = user) do
+    {:ok, token, _} = GtdToDoApi.Auth.Guardian.encode_and_sign(user)
+    token
   end
 
   def setup_test_session(conn, attrs \\ %{}) do
