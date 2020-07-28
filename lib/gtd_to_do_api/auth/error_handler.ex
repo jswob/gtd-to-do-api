@@ -1,4 +1,6 @@
 defmodule GtdToDoApi.Auth.ErrorHandler do
+  use Phoenix.Controller, namespace: GtdToDoApiWeb
+
   import Plug.Conn
 
   @behaviour Guardian.Plug.ErrorHandler
@@ -8,7 +10,8 @@ defmodule GtdToDoApi.Auth.ErrorHandler do
     body = to_string(type)
 
     conn
-    |> put_resp_content_type("text/plain")
-    |> send_resp(401, body)
+    |> put_status(:unauthorized)
+    |> put_view(GtdToDoApiWeb.ErrorView)
+    |> render("401.json", message: body)
   end
 end
