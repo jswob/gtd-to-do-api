@@ -29,7 +29,7 @@ defmodule GtdToDoApiWeb.UserView do
   def render("sign_out.json", _params) do
     %{
       data: %{
-        message: "session was succesfully deleted"
+        message: "Signing out successfully finished!"
       }
     }
   end
