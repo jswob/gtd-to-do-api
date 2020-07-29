@@ -3,7 +3,7 @@ defmodule GtdToDoApi.AuthTest do
 
   alias GtdToDoApi.Auth
   alias GtdToDoApi.Accounts.User
-  alias GtdToDoApi.Guardian
+  alias GtdToDoApi.Auth.Guardian
 
   setup %{conn: conn} do
     conn =
@@ -12,40 +12,6 @@ defmodule GtdToDoApi.AuthTest do
       |> get("/api/users/1")
 
     {:ok, %{conn: conn}}
-  end
-
-  test "when session is empty halt connection", %{conn: conn} do
-    conn = Auth.ensure_authenticated(conn, [])
-
-    assert conn.halted
-  end
-
-  test "when :current_user is set make a connection", %{conn: conn} do
-    user = user_fixture()
-
-    conn =
-      conn
-      |> assign(:current_user, user)
-      |> Auth.ensure_authenticated([])
-
-    refute conn.halted
-  end
-
-  test "call with session, set :current_user", %{conn: conn} do
-    %User{id: id} = user_fixture()
-
-    conn =
-      conn
-      |> put_session(:user_id, id)
-      |> Auth.call(Auth.init([]))
-
-    assert %User{id: ^id} = conn.assigns[:current_user]
-  end
-
-  test "call with empty session, set :current_user to nil", %{conn: conn} do
-    conn = Auth.call(conn, Auth.init([]))
-
-    assert conn.assigns[:current_user] == nil
   end
 
   test "authenticate_user/2 returns {:ok, token, refresh_token, expiration} if email and password are ok" do
