@@ -25,8 +25,8 @@ defmodule GtdToDoApi.ContainersTest do
       bucket_fixture(second_owner)
 
       assert [
-               %Bucket{id: ^bucket_id_2},
-               %Bucket{id: ^bucket_id_1}
+               %Bucket{id: ^bucket_id_1},
+               %Bucket{id: ^bucket_id_2}
              ] = Containers.list_user_buckets(first_owner)
 
       assert Enum.count(Containers.list_user_buckets(first_owner)) == 2
