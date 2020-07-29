@@ -7,7 +7,7 @@ defmodule GtdToDoApiWeb.TaskController do
   action_fallback GtdToDoApiWeb.FallbackController
 
   def index(conn, %{"list_id" => list_id}) do
-    owner = conn.assigns.current_user
+    owner = Guardian.Plug.current_resource(conn)
     list = GtdToDoApi.Collections.get_user_list!(owner, list_id)
 
     tasks = Tasks.list_list_tasks(list)
@@ -15,7 +15,7 @@ defmodule GtdToDoApiWeb.TaskController do
   end
 
   def create(conn, %{"task" => %{"list_id" => list_id} = task_params}) do
-    owner = conn.assigns.current_user
+    owner = Guardian.Plug.current_resource(conn)
     list = GtdToDoApi.Collections.get_user_list!(owner, list_id)
 
     with {:ok, %Task{} = task} <- Tasks.create_task(owner, list, task_params) do
@@ -27,12 +27,14 @@ defmodule GtdToDoApiWeb.TaskController do
   end
 
   def show(conn, %{"id" => id}) do
-    task = Tasks.get_user_task!(conn.assigns.current_user, id)
+    owner = Guardian.Plug.current_resource(conn)
+    task = Tasks.get_user_task!(owner, id)
     render(conn, "show.json", task: task)
   end
 
   def update(conn, %{"id" => id, "task" => task_params}) do
-    task = Tasks.get_user_task!(conn.assigns.current_user, id)
+    owner = Guardian.Plug.current_resource(conn)
+    task = Tasks.get_user_task!(owner, id)
 
     with {:ok, %Task{} = task} <- Tasks.update_task(task, task_params) do
       render(conn, "show.json", task: task)
@@ -40,7 +42,8 @@ defmodule GtdToDoApiWeb.TaskController do
   end
 
   def delete(conn, %{"id" => id}) do
-    task = Tasks.get_user_task!(conn.assigns.current_user, id)
+    owner = Guardian.Plug.current_resource(conn)
+    task = Tasks.get_user_task!(owner, id)
 
     with {:ok, %Task{}} <- Tasks.delete_task(task) do
       send_resp(conn, :no_content, "")

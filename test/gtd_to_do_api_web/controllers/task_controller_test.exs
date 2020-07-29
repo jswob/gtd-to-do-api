@@ -37,11 +37,7 @@ defmodule GtdToDoApiWeb.TaskControllerTest do
   end
 
   describe "index" do
-    setup %{conn: conn} do
-      {:ok, %{conn: conn}} = setup_test_session(conn)
-      {:ok, task: task, list: list} = create_task(conn)
-      {:ok, conn: conn, task: task, list: list}
-    end
+    setup %{conn: conn}, do: set_up_task(conn)
 
     test "lists all tasks", %{conn: conn, task: %Task{id: task_id}, list: list} do
       conn = get(conn, Routes.task_path(conn, :index), list_id: list.id)
@@ -50,12 +46,9 @@ defmodule GtdToDoApiWeb.TaskControllerTest do
   end
 
   describe "create task" do
-    setup %{conn: conn} do
-      setup_test_session(conn)
-    end
+    setup %{conn: conn}, do: setup_token_on_conn(conn)
 
-    test "renders task when data is valid", %{conn: conn} do
-      owner = conn.assigns.current_user
+    test "renders task when data is valid", %{conn: conn, user: owner} do
       collection = collection_fixture(owner)
       list = list_fixture(owner, collection)
 
@@ -73,8 +66,7 @@ defmodule GtdToDoApiWeb.TaskControllerTest do
              } = json_response(conn, 200)["data"]
     end
 
-    test "renders errors when data is invalid", %{conn: conn} do
-      owner = conn.assigns.current_user
+    test "renders errors when data is invalid", %{conn: conn, user: owner} do
       collection = collection_fixture(owner)
       list = list_fixture(owner, collection)
 
@@ -86,11 +78,7 @@ defmodule GtdToDoApiWeb.TaskControllerTest do
   end
 
   describe "update task" do
-    setup %{conn: conn} do
-      {:ok, %{conn: conn}} = setup_test_session(conn)
-      {:ok, task: task, list: list} = create_task(conn)
-      {:ok, conn: conn, task: task, list: list}
-    end
+    setup %{conn: conn}, do: set_up_task(conn)
 
     test "renders task when data is valid", %{conn: conn, task: %Task{id: id} = task} do
       conn = put(conn, Routes.task_path(conn, :update, task), task: @update_attrs)
@@ -112,11 +100,7 @@ defmodule GtdToDoApiWeb.TaskControllerTest do
   end
 
   describe "delete task" do
-    setup %{conn: conn} do
-      {:ok, %{conn: conn}} = setup_test_session(conn)
-      {:ok, task: task, list: list} = create_task(conn)
-      {:ok, conn: conn, task: task, list: list}
-    end
+    setup %{conn: conn}, do: set_up_task(conn)
 
     test "deletes chosen task", %{conn: conn, task: task} do
       conn = delete(conn, Routes.task_path(conn, :delete, task))
@@ -128,13 +112,13 @@ defmodule GtdToDoApiWeb.TaskControllerTest do
     end
   end
 
-  defp create_task(conn) do
-    owner = conn.assigns.current_user
+  defp set_up_task(conn) do
+    {:ok, conn: conn, token: _, user: owner} = setup_token_on_conn(conn)
+
     collection = collection_fixture(owner)
     list = list_fixture(owner, collection)
 
     {:ok, task} = Tasks.create_task(owner, list, @create_attrs)
-
-    {:ok, task: task, list: list}
+    {:ok, conn: conn, task: task, list: list}
   end
 end
