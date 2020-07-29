@@ -76,17 +76,6 @@ defmodule GtdToDoApi.TestHelpers do
     token
   end
 
-  def setup_test_session(conn, attrs \\ %{}) do
-    owner = user_fixture(attrs)
-
-    conn =
-      conn
-      |> Test.init_test_session(user_id: owner.id)
-      |> get(Routes.user_path(conn, :show, owner.id))
-
-    {:ok, %{conn: conn}}
-  end
-
   def setup_token_on_conn(conn) do
     user = user_fixture()
     token = token_fixture(user)
