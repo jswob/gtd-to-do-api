@@ -1,12 +1,10 @@
 defmodule GtdToDoApiWeb.Router do
   use GtdToDoApiWeb, :router
 
-  alias GtdToDoApi.Auth
+  alias GtdToDoApi.Auth.AuthPipeline
 
   pipeline :api do
     plug :accepts, ["json"]
-    plug :fetch_session
-    plug Auth
   end
 
   scope "/api", GtdToDoApiWeb do
@@ -18,7 +16,7 @@ defmodule GtdToDoApiWeb.Router do
   end
 
   scope "/api", GtdToDoApiWeb do
-    pipe_through [:api, :ensure_authenticated]
+    pipe_through [:api, AuthPipeline]
 
     resources "/collections", CollectionController, exept: [:new, :edit]
     resources "/buckets", BucketController, exept: [:new, :edit]
