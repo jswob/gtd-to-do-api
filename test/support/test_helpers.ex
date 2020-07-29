@@ -1,6 +1,5 @@
 defmodule GtdToDoApi.TestHelpers do
   use Phoenix.ConnTest
-  @endpoint GtdToDoApiWeb.Endpoint
 
   alias GtdToDoApi.Accounts
   alias GtdToDoApi.Collections
@@ -8,9 +7,6 @@ defmodule GtdToDoApi.TestHelpers do
 
   alias GtdToDoApi.Accounts.User
   alias GtdToDoApi.Collections.Collection
-  alias GtdToDoApiWeb.Router.Helpers, as: Routes
-
-  alias Plug.Test
 
   @current_user_attrs %{
     avatar_url: "some avatar_url",
