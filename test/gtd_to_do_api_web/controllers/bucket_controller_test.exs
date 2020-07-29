@@ -34,9 +34,7 @@ defmodule GtdToDoApiWeb.BucketControllerTest do
   end
 
   describe "index" do
-    setup %{conn: conn} do
-      setup_test_session(conn)
-    end
+    setup %{conn: conn}, do: setup_token_on_conn(conn)
 
     test "lists all buckets", %{conn: conn} do
       conn = get(conn, Routes.bucket_path(conn, :index))
@@ -45,9 +43,7 @@ defmodule GtdToDoApiWeb.BucketControllerTest do
   end
 
   describe "create bucket" do
-    setup %{conn: conn} do
-      setup_test_session(conn)
-    end
+    setup %{conn: conn}, do: setup_token_on_conn(conn)
 
     test "renders bucket when data is valid", %{conn: conn} do
       conn = post(conn, Routes.bucket_path(conn, :create), bucket: @create_attrs)
@@ -69,9 +65,7 @@ defmodule GtdToDoApiWeb.BucketControllerTest do
   end
 
   describe "update bucket" do
-    setup %{conn: conn} do
-      create_bucket(conn)
-    end
+    setup %{conn: conn}, do: create_bucket(conn)
 
     test "renders bucket when data is valid", %{conn: conn, bucket: %Bucket{id: id} = bucket} do
       conn = put(conn, Routes.bucket_path(conn, :update, bucket), bucket: @update_attrs)
@@ -93,9 +87,7 @@ defmodule GtdToDoApiWeb.BucketControllerTest do
   end
 
   describe "delete bucket" do
-    setup %{conn: conn} do
-      create_bucket(conn)
-    end
+    setup %{conn: conn}, do: create_bucket(conn)
 
     test "deletes chosen bucket", %{conn: conn, bucket: bucket} do
       conn = delete(conn, Routes.bucket_path(conn, :delete, bucket))
@@ -108,13 +100,8 @@ defmodule GtdToDoApiWeb.BucketControllerTest do
   end
 
   defp create_bucket(conn) do
-    {:ok, %{conn: conn}} = setup_test_session(conn)
+    {:ok, conn: conn, token: _, user: owner} = setup_token_on_conn(conn)
 
-    {:ok,
-     %{
-       conn: conn,
-       bucket: bucket_fixture(conn.assigns.current_user),
-       owner: conn.assigns.current_user
-     }}
+    {:ok, conn: conn, bucket: bucket_fixture(owner), owner: owner}
   end
 end
