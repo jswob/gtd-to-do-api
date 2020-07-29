@@ -87,17 +87,26 @@ defmodule GtdToDoApi.TestHelpers do
     {:ok, %{conn: conn}}
   end
 
+  def setup_token_on_conn(conn) do
+    user = user_fixture()
+    token = token_fixture(user)
+
+    conn = put_req_header(conn, "authorization", "Bearer #{token}")
+
+    {:ok, conn: conn, token: token, user: user}
+  end
+
   def setup_token_on_conn(conn, %User{} = user) do
     token = token_fixture(user)
 
     conn = put_req_header(conn, "authorization", "Bearer #{token}")
 
-    conn
+    {:ok, conn: conn, token: token}
   end
 
-  def setup_token_on_conn(conn, %User{} = user, token) do
+  def setup_token_on_conn(conn, token) do
     conn = put_req_header(conn, "authorization", "Bearer #{token}")
 
-    conn
+    {:ok, conn: conn}
   end
 end

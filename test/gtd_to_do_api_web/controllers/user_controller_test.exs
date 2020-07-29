@@ -86,9 +86,7 @@ defmodule GtdToDoApiWeb.UserControllerTest do
     end
 
     test "sign_out invalidate token", %{conn: conn} do
-      user = user_fixture()
-
-      conn = setup_token_on_conn(conn, user)
+      {:ok, conn: conn, token: _, user: _} = setup_token_on_conn(conn)
 
       conn = post(conn, Routes.user_path(conn, :sign_out))
 
@@ -99,11 +97,7 @@ defmodule GtdToDoApiWeb.UserControllerTest do
   end
 
   describe "show user" do
-    setup %{conn: conn} do
-      user = user_fixture()
-      conn = setup_token_on_conn(conn, user)
-      {:ok, conn: conn, user: user}
-    end
+    setup %{conn: conn}, do: setup_token_on_conn(conn)
 
     test "shows user if exists", %{conn: conn, user: user} do
       conn = get(conn, Routes.user_path(conn, :show, user))
@@ -140,11 +134,7 @@ defmodule GtdToDoApiWeb.UserControllerTest do
   end
 
   describe "update user" do
-    setup %{conn: conn} do
-      user = user_fixture()
-      conn = setup_token_on_conn(conn, user)
-      {:ok, conn: conn, user: user}
-    end
+    setup %{conn: conn}, do: setup_token_on_conn(conn)
 
     test "renders user when data is valid", %{conn: conn, user: %User{id: id} = user} do
       conn = put(conn, Routes.user_path(conn, :update, user), user: @update_attrs)
@@ -166,11 +156,7 @@ defmodule GtdToDoApiWeb.UserControllerTest do
   end
 
   describe "delete user" do
-    setup %{conn: conn} do
-      user = user_fixture()
-      conn = setup_token_on_conn(conn, user)
-      {:ok, conn: conn, user: user}
-    end
+    setup %{conn: conn}, do: setup_token_on_conn(conn)
 
     test "deletes chosen user", %{conn: conn, user: user} do
       conn = delete(conn, Routes.user_path(conn, :delete, user))
@@ -182,7 +168,7 @@ defmodule GtdToDoApiWeb.UserControllerTest do
 
     test "Don't deletes user if token resource has different id", %{conn: conn, user: user} do
       sneaky_user = user_fixture(%{email: "sneaky", password: "some"})
-      conn = setup_token_on_conn(conn, sneaky_user)
+      {:ok, conn: conn, token: _} = setup_token_on_conn(conn, sneaky_user)
 
       conn = delete(conn, Routes.user_path(conn, :delete, user))
 
