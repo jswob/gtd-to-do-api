@@ -23,7 +23,6 @@ defmodule GtdToDoApiWeb do
 
       import Plug.Conn
       import GtdToDoApiWeb.Gettext
-      import GtdToDoApi.Auth, only: [ensure_authenticated: 2]
       alias GtdToDoApiWeb.Router.Helpers, as: Routes
     end
   end
@@ -48,7 +47,6 @@ defmodule GtdToDoApiWeb do
       use Phoenix.Router
       import Plug.Conn
       import Phoenix.Controller
-      import GtdToDoApi.Auth, only: [ensure_authenticated: 2]
     end
   end
 
