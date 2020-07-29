@@ -37,8 +37,8 @@ defmodule GtdToDoApiWeb.ListControllerTest do
 
   describe "index" do
     setup %{conn: conn} do
-      {:ok, %{conn: conn}} = setup_test_session(conn)
-      {:ok, list: list, collection: collection} = create_list(conn)
+      {:ok, conn: conn, token: _, user: user} = setup_token_on_conn(conn)
+      {:ok, list: list, collection: collection} = create_list(user)
       {:ok, conn: conn, list: list, collection: collection}
     end
 
@@ -49,12 +49,9 @@ defmodule GtdToDoApiWeb.ListControllerTest do
   end
 
   describe "create list" do
-    setup %{conn: conn} do
-      setup_test_session(conn)
-    end
+    setup %{conn: conn}, do: setup_token_on_conn(conn)
 
-    test "renders list when data is valid", %{conn: conn} do
-      owner = conn.assigns.current_user
+    test "renders list when data is valid", %{conn: conn, user: owner} do
       collection = collection_fixture(owner)
 
       attrs = Enum.into(%{collection_id: collection.id}, @create_attrs)
@@ -71,8 +68,7 @@ defmodule GtdToDoApiWeb.ListControllerTest do
              } = json_response(conn, 200)["data"]
     end
 
-    test "renders errors when data is invalid", %{conn: conn} do
-      owner = conn.assigns.current_user
+    test "renders errors when data is invalid", %{conn: conn, user: owner} do
       collection = collection_fixture(owner)
 
       attrs = Enum.into(%{collection_id: collection.id}, @invalid_attrs)
@@ -84,8 +80,8 @@ defmodule GtdToDoApiWeb.ListControllerTest do
 
   describe "update list" do
     setup %{conn: conn} do
-      {:ok, %{conn: conn}} = setup_test_session(conn)
-      {:ok, list: list, collection: collection} = create_list(conn)
+      {:ok, conn: conn, token: _, user: user} = setup_token_on_conn(conn)
+      {:ok, list: list, collection: collection} = create_list(user)
       {:ok, conn: conn, list: list, collection: collection}
     end
 
@@ -110,8 +106,8 @@ defmodule GtdToDoApiWeb.ListControllerTest do
 
   describe "delete list" do
     setup %{conn: conn} do
-      {:ok, %{conn: conn}} = setup_test_session(conn)
-      {:ok, list: list, collection: collection} = create_list(conn)
+      {:ok, conn: conn, token: _, user: user} = setup_token_on_conn(conn)
+      {:ok, list: list, collection: collection} = create_list(user)
       {:ok, conn: conn, list: list, collection: collection}
     end
 
@@ -125,8 +121,7 @@ defmodule GtdToDoApiWeb.ListControllerTest do
     end
   end
 
-  defp create_list(conn) do
-    owner = conn.assigns.current_user
+  defp create_list(owner) do
     collection = collection_fixture(owner)
     attrs = Enum.into(@create_attrs, %{collection_id: collection.id})
 

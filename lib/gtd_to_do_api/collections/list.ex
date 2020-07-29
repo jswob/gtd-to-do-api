@@ -19,7 +19,7 @@ defmodule GtdToDoApi.Collections.List do
     |> cast(attrs, [:title, :color, :collection_id])
     |> validate_required([:title, :collection_id])
     |> check_if_collection_has_proper_owner()
-    |> validate_length(:title, min: 1, max: 15)
+    |> validate_length(:title, min: 1, max: 35)
   end
 
   defp check_if_collection_has_proper_owner(
