@@ -7,25 +7,15 @@ defmodule GtdToDoApiWeb.UserController do
 
   action_fallback GtdToDoApiWeb.FallbackController
 
-  plug :ensure_authenticated when action in [:show, :update, :delete, :sign_out]
+  plug Auth.AuthPipeline when action in [:show, :update, :delete, :sign_out]
 
   def create(conn, %{"user" => user_params}) do
     with {:ok, %User{} = user} <- Accounts.create_user(user_params) do
       conn
       |> put_status(:created)
       |> put_resp_header("location", Routes.user_path(conn, :show, user))
-      |> put_session(:user_id, user.id)
       |> render("show.json", user: user)
-    end
-
-    case Accounts.create_user(user_params) do
-      {:ok, %User{} = user} ->
-        conn
-        |> put_status(:created)
-        |> put_resp_header("location", Routes.user_path(conn, :show, user))
-        |> put_session(:user_id, user.id)
-        |> render("show.json", user: user)
-
+    else
       {:error, changeset} ->
         conn
         |> put_status(422)
@@ -35,25 +25,52 @@ defmodule GtdToDoApiWeb.UserController do
   end
 
   def show(conn, %{"id" => id}) do
-    user = Accounts.get_user!(id)
-    render(conn, "show.json", user: user)
+    user = Guardian.Plug.current_resource(conn)
+
+    cond do
+      !user ->
+        undefined_user_error(conn)
+
+      to_string(user.id) == id ->
+        render(conn, "show.json", user: user)
+
+      true ->
+        bad_user_id_error(conn)
+    end
   end
 
   def update(conn, %{"id" => id, "user" => user_params}) do
-    user = Accounts.get_user!(id)
+    user = Guardian.Plug.current_resource(conn)
 
-    with {:ok, %User{} = user} <- Accounts.update_user(user, user_params) do
-      conn
-      |> put_session(:user_id, user.id)
-      |> render("show.json", user: user)
+    cond do
+      !user ->
+        undefined_user_error(conn)
+
+      to_string(user.id) == id ->
+        with {:ok, %User{} = user} <- Accounts.update_user(user, user_params) do
+          conn
+          |> render("show.json", user: user)
+        end
+
+      true ->
+        bad_user_id_error(conn)
     end
   end
 
   def delete(conn, %{"id" => id}) do
-    user = Accounts.get_user!(id)
+    user = Guardian.Plug.current_resource(conn)
 
-    with {:ok, %User{}} <- Accounts.delete_user(user) do
-      send_resp(conn, :no_content, "")
+    cond do
+      !user ->
+        undefined_user_error(conn)
+
+      to_string(user.id) == id ->
+        with {:ok, %User{}} <- Accounts.delete_user(user) do
+          send_resp(conn, :no_content, "")
+        end
+
+      true ->
+        bad_user_id_error(conn)
     end
   end
 
@@ -70,7 +87,6 @@ defmodule GtdToDoApiWeb.UserController do
 
       {:error, message} ->
         conn
-        |> delete_session(:user_id)
         |> put_status(:unauthorized)
         |> put_view(GtdToDoApiWeb.ErrorView)
         |> render("401.json", message: message)
@@ -98,7 +114,23 @@ defmodule GtdToDoApiWeb.UserController do
 
   def sign_out(conn, _params) do
     conn
-    |> configure_session(drop: true)
+    |> GtdToDoApi.Auth.Guardian.Plug.sign_out()
     |> render("sign_out.json", %{})
+  end
+
+  defp bad_user_id_error(conn) do
+    conn
+    |> put_status(:unauthorized)
+    |> put_view(GtdToDoApiWeb.ErrorView)
+    |> halt()
+    |> render("401.json", message: "Bad user id")
+  end
+
+  defp undefined_user_error(conn) do
+    conn
+    |> put_status(:not_found)
+    |> put_view(GtdToDoApiWeb.ErrorView)
+    |> halt()
+    |> render("404.json", message: "User with this id hasn't been found")
   end
 end

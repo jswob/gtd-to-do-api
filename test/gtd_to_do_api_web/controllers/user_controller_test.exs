@@ -45,91 +45,110 @@ defmodule GtdToDoApiWeb.UserControllerTest do
       )
     end
 
-    test "sign_in with correct data returns user and update session with user id", %{conn: conn} do
-      %User{id: id} = user_fixture(@create_attrs)
+    test "sign_in with correct data returns access and refresh tokens", %{conn: conn} do
+      user_fixture(@create_attrs)
 
       conn =
         post(
           conn,
           Routes.user_path(conn, :sign_in, %{
-            email: @create_attrs.email,
-            password: @create_attrs.password
+            username: @create_attrs.email,
+            password: @create_attrs.password,
+            grant_type: "password"
           })
         )
 
-      assert conn.assigns.user.id == id
-
-      assert %{"data" => %{"email" => email, "id" => id}} = json_response(conn, 200)
+      assert %{
+               "access_token" => _,
+               "expires_in" => _,
+               "refresh_token" => _,
+               "token_type" => "bearer"
+             } = json_response(conn, 200)
     end
 
-    test "sign_in with incorrect data delete user id from session and return 401 error message",
+    test "sign_in with incorrect data returns error message",
          %{conn: conn} do
-      id = 123
-      put_session(conn, :user_id, id)
-
-      conn =
-        post(
-          conn,
-          Routes.user_path(conn, :sign_in, %{email: "wrong email", password: "wrong password"})
-        )
-
-      assert get_session(conn, :user_id) == nil
-      assert json_response(conn, 401)
-    end
-
-    test "sign_out drop session", %{conn: conn} do
-      user_fixture()
-
       conn =
         post(
           conn,
           Routes.user_path(conn, :sign_in, %{
-            email: @create_attrs.email,
-            password: @create_attrs.password
+            username: "wrong email",
+            password: "wrong password",
+            grant_type: "password"
           })
         )
 
-      assert conn.cookies != %{}
+      assert %{
+               "errors" => %{
+                 "detail" => "Could not find user"
+               }
+             } = json_response(conn, 401)
+    end
+
+    test "sign_out invalidate token", %{conn: conn} do
+      user = user_fixture()
+
+      conn = setup_token_on_conn(conn, user)
 
       conn = post(conn, Routes.user_path(conn, :sign_out))
 
-      assert conn.cookies == %{}
+      assert %{
+               "data" => %{"message" => "Signing out successfully finished!"}
+             } = json_response(conn, 200)
+    end
+  end
+
+  describe "show user" do
+    setup %{conn: conn} do
+      user = user_fixture()
+      conn = setup_token_on_conn(conn, user)
+      {:ok, conn: conn, user: user}
+    end
+
+    test "shows user if exists", %{conn: conn, user: user} do
+      conn = get(conn, Routes.user_path(conn, :show, user))
+
+      %{avatar_url: avatar_url, email: email, password_hash: password_hash, id: id} = user
+
+      assert %{
+               "avatar_url" => ^avatar_url,
+               "email" => ^email,
+               "id" => ^id,
+               "password_hash" => ^password_hash
+             } = json_response(conn, 200)["users"]
     end
   end
 
   describe "create user" do
     test "renders user and update session when data is valid", %{conn: conn} do
       conn = post(conn, Routes.user_path(conn, :create), user: @create_attrs)
-      assert %{"id" => id} = json_response(conn, 201)["data"]
+      assert %{"id" => id} = json_response(conn, 201)["users"]
 
-      assert get_session(conn, :user_id) == id
-
-      conn = get(conn, Routes.user_path(conn, :show, id))
+      user = GtdToDoApi.Accounts.get_user!(id)
 
       assert %{
-               "id" => id,
-               "avatar_url" => "some avatar_url",
-               "email" => "some email"
-             } = json_response(conn, 200)["data"]
+               id: id,
+               avatar_url: "some avatar_url",
+               email: "some email"
+             } = user
     end
 
     test "renders errors when data is invalid", %{conn: conn} do
       conn = post(conn, Routes.user_path(conn, :create), user: @invalid_attrs)
-      assert json_response(conn, 422)["errors"] != %{}
+      assert json_response(conn, 422)["errors"] == [%{"email" => "can't be blank"}]
     end
   end
 
   describe "update user" do
     setup %{conn: conn} do
       user = user_fixture()
-      conn = assign(conn, :current_user, user)
+      conn = setup_token_on_conn(conn, user)
       {:ok, conn: conn, user: user}
     end
 
-    @tag timeout: :infinity
     test "renders user when data is valid", %{conn: conn, user: %User{id: id} = user} do
       conn = put(conn, Routes.user_path(conn, :update, user), user: @update_attrs)
-      assert %{"id" => ^id} = json_response(conn, 200)["data"]
+      assert %{"id" => ^id} = json_response(conn, 200)["users"]
 
       conn = get(conn, Routes.user_path(conn, :show, id))
 
@@ -137,19 +156,19 @@ defmodule GtdToDoApiWeb.UserControllerTest do
                "id" => id,
                "avatar_url" => "some updated avatar_url",
                "email" => "some updated email"
-             } = json_response(conn, 200)["data"]
+             } = json_response(conn, 200)["users"]
     end
 
     test "renders errors when data is invalid", %{conn: conn, user: user} do
       conn = put(conn, Routes.user_path(conn, :update, user), user: @invalid_attrs)
-      assert json_response(conn, 422)["errors"] != %{}
+      assert json_response(conn, 422)["errors"] == %{"email" => ["can't be blank"]}
     end
   end
 
   describe "delete user" do
     setup %{conn: conn} do
       user = user_fixture()
-      conn = assign(conn, :current_user, user)
+      conn = setup_token_on_conn(conn, user)
       {:ok, conn: conn, user: user}
     end
 
@@ -157,8 +176,17 @@ defmodule GtdToDoApiWeb.UserControllerTest do
       conn = delete(conn, Routes.user_path(conn, :delete, user))
       assert response(conn, 204)
 
-      assert %{assigns: %{message: "Unauthenticated user"}} =
+      assert %{assigns: %{message: "User with this id hasn't been found"}} =
                get(conn, Routes.user_path(conn, :show, user))
+    end
+
+    test "Don't deletes user if token resource has different id", %{conn: conn, user: user} do
+      sneaky_user = user_fixture(%{email: "sneaky", password: "some"})
+      conn = setup_token_on_conn(conn, sneaky_user)
+
+      conn = delete(conn, Routes.user_path(conn, :delete, user))
+
+      assert %{"errors" => %{"detail" => "Bad user id"}} = json_response(conn, 401)
     end
   end
 end
