@@ -37,9 +37,7 @@ defmodule GtdToDoApiWeb.CollectionControllerTest do
   end
 
   describe "index" do
-    setup %{conn: conn} do
-      setup_test_session(conn)
-    end
+    setup %{conn: conn}, do: setup_token_on_conn(conn)
 
     test "lists all collections", %{conn: conn} do
       conn = get(conn, Routes.collection_path(conn, :index))
@@ -48,9 +46,7 @@ defmodule GtdToDoApiWeb.CollectionControllerTest do
   end
 
   describe "create collection" do
-    setup %{conn: conn} do
-      setup_test_session(conn)
-    end
+    setup %{conn: conn}, do: setup_token_on_conn(conn)
 
     test "renders collection when data is valid", %{conn: conn} do
       conn = post(conn, Routes.collection_path(conn, :create), collection: @create_attrs)
@@ -72,9 +68,7 @@ defmodule GtdToDoApiWeb.CollectionControllerTest do
   end
 
   describe "update collection" do
-    setup %{conn: conn} do
-      create_collection(conn)
-    end
+    setup %{conn: conn}, do: create_collection(conn)
 
     test "renders collection when data is valid", %{
       conn: conn,
@@ -103,9 +97,7 @@ defmodule GtdToDoApiWeb.CollectionControllerTest do
   end
 
   describe "delete collection" do
-    setup %{conn: conn} do
-      create_collection(conn)
-    end
+    setup %{conn: conn}, do: create_collection(conn)
 
     test "deletes chosen collection", %{
       conn: conn,
@@ -117,13 +109,8 @@ defmodule GtdToDoApiWeb.CollectionControllerTest do
   end
 
   defp create_collection(conn) do
-    {:ok, %{conn: conn}} = setup_test_session(conn)
+    {:ok, conn: conn, token: _, user: owner} = setup_token_on_conn(conn)
 
-    {:ok,
-     %{
-       conn: conn,
-       collection: collection_fixture(conn.assigns.current_user),
-       owner: conn.assigns.current_user
-     }}
+    {:ok, conn: conn, collection: collection_fixture(owner), owner: owner}
   end
 end

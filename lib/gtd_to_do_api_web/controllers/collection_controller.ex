@@ -7,18 +7,22 @@ defmodule GtdToDoApiWeb.CollectionController do
   action_fallback GtdToDoApiWeb.FallbackController
 
   def index(conn, _params) do
-    collections = Collections.list_users_collections(conn.assigns.current_user)
+    user = Guardian.Plug.current_resource(conn)
+    collections = Collections.list_users_collections(user)
     render(conn, "index.json", collections: collections)
   end
 
   def show(conn, %{"id" => id}) do
-    collection = Collections.get_users_collection!(conn.assigns.current_user, id)
+    user = Guardian.Plug.current_resource(conn)
+    collection = Collections.get_users_collection!(user, id)
     render(conn, "show.json", collection: collection)
   end
 
   def create(conn, %{"collection" => collection_params}) do
+    user = Guardian.Plug.current_resource(conn)
+
     with {:ok, %Collection{} = collection} <-
-           Collections.create_collection(conn.assigns.current_user, collection_params) do
+           Collections.create_collection(user, collection_params) do
       conn
       |> put_status(:created)
       |> put_resp_header("location", Routes.collection_path(conn, :show, collection))
@@ -27,7 +31,9 @@ defmodule GtdToDoApiWeb.CollectionController do
   end
 
   def update(conn, %{"id" => id, "collection" => collection_params}) do
-    collection = Collections.get_collection!(id)
+    user = Guardian.Plug.current_resource(conn)
+
+    collection = Collections.get_users_collection!(user, id)
 
     with {:ok, %Collection{} = collection} <-
            Collections.update_collection(collection, collection_params) do
@@ -36,7 +42,9 @@ defmodule GtdToDoApiWeb.CollectionController do
   end
 
   def delete(conn, %{"id" => id}) do
-    collection = Collections.get_collection!(id)
+    user = Guardian.Plug.current_resource(conn)
+
+    collection = Collections.get_users_collection!(user, id)
 
     with {:ok, %Collection{}} <- Collections.delete_collection(collection) do
       send_resp(conn, :no_content, "")

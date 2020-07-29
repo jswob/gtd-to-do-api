@@ -18,6 +18,6 @@ defmodule GtdToDoApi.Collections.Collection do
     collection
     |> cast(attrs, [:title, :color])
     |> validate_required([:title])
-    |> validate_length(:title, min: 1, max: 15)
+    |> validate_length(:title, min: 1, max: 35)
   end
 end
