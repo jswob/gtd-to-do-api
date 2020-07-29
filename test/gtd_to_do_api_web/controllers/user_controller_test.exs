@@ -85,6 +85,27 @@ defmodule GtdToDoApiWeb.UserControllerTest do
              } = json_response(conn, 401)
     end
 
+    test "sign_in with refresh_token returns access and refresh_tokens", %{conn: conn} do
+      user = user_fixture()
+      token = token_fixture(user, token_type: "refresh")
+
+      conn =
+        post(
+          conn,
+          Routes.user_path(conn, :sign_in, %{
+            refresh_token: token,
+            grant_type: "refresh_token"
+          })
+        )
+
+      assert %{
+               "access_token" => _,
+               "expires_in" => _,
+               "refresh_token" => _,
+               "token_type" => "bearer"
+             } = json_response(conn, 200)
+    end
+
     test "sign_out invalidate token", %{conn: conn} do
       {:ok, conn: conn, token: _, user: _} = setup_token_on_conn(conn)
 

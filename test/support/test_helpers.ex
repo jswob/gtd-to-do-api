@@ -67,8 +67,8 @@ defmodule GtdToDoApi.TestHelpers do
     %{task: task, owner: owner, list: list}
   end
 
-  def token_fixture(%User{} = user) do
-    {:ok, token, _} = GtdToDoApi.Auth.Guardian.encode_and_sign(user)
+  def token_fixture(%User{} = user, params \\ []) do
+    {:ok, token, _} = GtdToDoApi.Auth.Guardian.encode_and_sign(user, %{}, params)
     token
   end
 
