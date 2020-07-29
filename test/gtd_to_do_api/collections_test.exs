@@ -126,8 +126,8 @@ defmodule GtdToDoApi.CollectionsTest do
       list_fixture(owner, collection_2)
 
       assert [
-               %List{id: ^list_id_2},
-               %List{id: ^list_id_1}
+               %List{id: ^list_id_1},
+               %List{id: ^list_id_2}
              ] = Collections.list_collection_lists(collection_1)
 
       assert Enum.count(Collections.list_collection_lists(collection_1)) == 2
