@@ -1,41 +1,10 @@
 defmodule GtdToDoApi.Auth do
-  import Plug.Conn
-  import Phoenix.Controller
   import Ecto.Query
 
   alias GtdToDoApi.Accounts.User
   alias GtdToDoApi.Accounts
   alias GtdToDoApi.Repo
-  alias GtdToDoApi.Guardian
-
-  def init(opts), do: opts
-
-  def call(conn, _opts) do
-    current_user_id = get_session(conn, :user_id)
-
-    cond do
-      conn.assigns[:current_user] ->
-        conn
-
-      user = current_user_id && Accounts.get_user!(current_user_id) ->
-        assign(conn, :current_user, user)
-
-      true ->
-        assign(conn, :current_user, nil)
-    end
-  end
-
-  def ensure_authenticated(conn, _opts) do
-    if conn.assigns.current_user do
-      conn
-    else
-      conn
-      |> put_status(:unauthorized)
-      |> put_view(GtdToDoApiWeb.ErrorView)
-      |> render("401.json", message: "Unauthenticated user")
-      |> halt()
-    end
-  end
+  alias GtdToDoApi.Auth.Guardian
 
   def authenticate_user(email, password) do
     query = from(u in User, where: u.email == ^email)
@@ -79,11 +48,11 @@ defmodule GtdToDoApi.Auth do
   end
 
   defp generate_tokens(%User{} = user) do
-    exp = 15
+    exp = 10
     {:ok, access_token, _} = Guardian.encode_and_sign(user, %{}, ttl: {exp, :second})
 
     {:ok, refresh_token, _} =
-      Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {1, :minute})
+      Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :second})
 
     {:ok, access_token, refresh_token, exp}
   end
