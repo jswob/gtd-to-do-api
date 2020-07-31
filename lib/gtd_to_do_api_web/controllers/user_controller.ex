@@ -76,13 +76,14 @@ defmodule GtdToDoApiWeb.UserController do
 
   def sign_in(conn, %{"username" => email, "password" => password, "grant_type" => "password"}) do
     case Auth.authenticate_user(email, password) do
-      {:ok, access_token, refresh_token, exp} ->
+      {:ok, access_token, refresh_token, exp, user_id} ->
         conn
         |> put_status(:ok)
         |> render("sign_in.json",
           access_token: access_token,
           refresh_token: refresh_token,
-          exp: exp
+          exp: exp,
+          user_id: user_id
         )
 
       {:error, message} ->
@@ -95,13 +96,14 @@ defmodule GtdToDoApiWeb.UserController do
 
   def sign_in(conn, %{"refresh_token" => refresh_token, "grant_type" => "refresh_token"}) do
     case Auth.authenticate_user(refresh_token) do
-      {:ok, access_token, refresh_token, exp} ->
+      {:ok, access_token, refresh_token, exp, user_id} ->
         conn
         |> put_status(:ok)
         |> render("sign_in.json",
           access_token: access_token,
           refresh_token: refresh_token,
-          exp: exp
+          exp: exp,
+          user_id: user_id
         )
 
       {:error, message} ->

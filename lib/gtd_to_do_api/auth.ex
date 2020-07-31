@@ -54,6 +54,6 @@ defmodule GtdToDoApi.Auth do
     {:ok, refresh_token, _} =
       Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :second})
 
-    {:ok, access_token, refresh_token, exp}
+    {:ok, access_token, refresh_token, exp, user.id}
   end
 end
