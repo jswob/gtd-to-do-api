@@ -18,6 +18,14 @@ defmodule GtdToDoApi.Collections.Collection do
     collection
     |> cast(attrs, [:title, :color])
     |> validate_required([:title])
+    |> add_bucket(attrs)
     |> validate_length(:title, min: 1, max: 35)
   end
+
+  def add_bucket(collection, %{bucket: %GtdToDoApi.Containers.Bucket{} = bucket}) do
+    collection
+    |> put_assoc(:bucket, bucket)
+  end
+
+  def add_bucket(collection, _), do: collection
 end
