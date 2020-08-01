@@ -48,11 +48,11 @@ defmodule GtdToDoApi.Auth do
   end
 
   defp generate_tokens(%User{} = user) do
-    exp = 10
+    exp = 216_000
     {:ok, access_token, _} = Guardian.encode_and_sign(user, %{}, ttl: {exp, :second})
 
     {:ok, refresh_token, _} =
-      Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :second})
+      Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {2, :weeks})
 
     {:ok, access_token, refresh_token, exp, user.id}
   end
