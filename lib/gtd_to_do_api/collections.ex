@@ -19,6 +19,18 @@ defmodule GtdToDoApi.Collections do
     |> Repo.all()
   end
 
+  def list_non_bucket_collections(user) do
+    user
+    |> non_bucket_collections_query()
+    |> Repo.all()
+  end
+
+  def list_bucket_collections(bucket) do
+    bucket
+    |> bucket_collections_query()
+    |> Repo.all()
+  end
+
   def get_collection!(id), do: Repo.get!(Collection, id)
 
   def get_users_collection!(user, id) do
@@ -54,7 +66,21 @@ defmodule GtdToDoApi.Collections do
   end
 
   defp users_collection_query(%User{id: owner_id}) do
-    from(c in Collection, where: c.owner_id == ^owner_id, preload: [bucket: c])
+    from(c in Collection,
+      where: c.owner_id == ^owner_id,
+      preload: [bucket: c]
+    )
+  end
+
+  defp non_bucket_collections_query(%User{id: owner_id}) do
+    from(c in Collection,
+      where: c.owner_id == ^owner_id and is_nil(c.bucket_id),
+      preload: [bucket: c]
+    )
+  end
+
+  defp bucket_collections_query(%GtdToDoApi.Containers.Bucket{id: bucket_id}) do
+    from(c in Collection, where: c.bucket_id == ^bucket_id)
   end
 
   # list

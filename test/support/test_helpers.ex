@@ -36,12 +36,7 @@ defmodule GtdToDoApi.TestHelpers do
   @valid_collection_attrs %{"color" => "some color", "title" => "some title"}
 
   def collection_fixture(%User{} = owner, attrs \\ %{}) do
-    bucket = bucket_fixture(owner)
-
-    attrs =
-      attrs
-      |> Enum.into(@valid_collection_attrs)
-      |> Map.put("bucket", bucket.id)
+    attrs = Enum.into(attrs, @valid_collection_attrs)
 
     {:ok, collection} = Collections.create_collection(owner, attrs)
 
