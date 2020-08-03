@@ -28,6 +28,8 @@ defmodule GtdToDoApi.Collections do
   end
 
   def create_collection(%User{} = owner, attrs \\ %{}) do
+    attrs = Map.put(attrs, "owner", owner)
+
     %Collection{}
     |> Collection.changeset(attrs)
     |> Changeset.put_assoc(:owner, owner)
@@ -35,6 +37,9 @@ defmodule GtdToDoApi.Collections do
   end
 
   def update_collection(%Collection{} = collection, attrs) do
+    owner = GtdToDoApi.Accounts.get_user!(collection.owner_id)
+    attrs = Map.put(attrs, "owner", owner)
+
     collection
     |> Collection.changeset(attrs)
     |> Repo.update()
@@ -49,7 +54,7 @@ defmodule GtdToDoApi.Collections do
   end
 
   defp users_collection_query(%User{id: owner_id}) do
-    from(c in Collection, where: c.owner_id == ^owner_id)
+    from(c in Collection, where: c.owner_id == ^owner_id, preload: [bucket: c])
   end
 
   # list
