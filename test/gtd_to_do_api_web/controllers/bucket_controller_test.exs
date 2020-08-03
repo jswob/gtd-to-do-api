@@ -38,7 +38,7 @@ defmodule GtdToDoApiWeb.BucketControllerTest do
 
     test "lists all buckets", %{conn: conn} do
       conn = get(conn, Routes.bucket_path(conn, :index))
-      assert json_response(conn, 200)["data"] == []
+      assert json_response(conn, 200)["buckets"] == []
     end
   end
 
@@ -47,7 +47,7 @@ defmodule GtdToDoApiWeb.BucketControllerTest do
 
     test "renders bucket when data is valid", %{conn: conn} do
       conn = post(conn, Routes.bucket_path(conn, :create), bucket: @create_attrs)
-      assert %{"id" => id} = json_response(conn, 201)["data"]
+      assert %{"id" => id} = json_response(conn, 201)["bucket"]
 
       conn = get(conn, Routes.bucket_path(conn, :show, id))
 
@@ -55,7 +55,7 @@ defmodule GtdToDoApiWeb.BucketControllerTest do
                "id" => id,
                "color" => "some color",
                "title" => "some title"
-             } = json_response(conn, 200)["data"]
+             } = json_response(conn, 200)["bucket"]
     end
 
     test "renders errors when data is invalid", %{conn: conn} do
@@ -69,7 +69,7 @@ defmodule GtdToDoApiWeb.BucketControllerTest do
 
     test "renders bucket when data is valid", %{conn: conn, bucket: %Bucket{id: id} = bucket} do
       conn = put(conn, Routes.bucket_path(conn, :update, bucket), bucket: @update_attrs)
-      assert %{"id" => ^id} = json_response(conn, 200)["data"]
+      assert %{"id" => ^id} = json_response(conn, 200)["bucket"]
 
       conn = get(conn, Routes.bucket_path(conn, :show, id))
 
@@ -77,7 +77,7 @@ defmodule GtdToDoApiWeb.BucketControllerTest do
                "id" => id,
                "color" => "some updated color",
                "title" => "some updated title"
-             } = json_response(conn, 200)["data"]
+             } = json_response(conn, 200)["bucket"]
     end
 
     test "renders errors when data is invalid", %{conn: conn, bucket: bucket} do
