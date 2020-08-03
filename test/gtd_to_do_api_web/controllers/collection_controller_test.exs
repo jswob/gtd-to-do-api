@@ -4,14 +4,15 @@ defmodule GtdToDoApiWeb.CollectionControllerTest do
   alias GtdToDoApi.Collections.Collection
 
   @create_attrs %{
-    color: "some color",
-    title: "some title"
+    "color" => "some color",
+    "title" => "some title"
   }
   @update_attrs %{
-    color: "some updated color",
-    title: "some updated title"
+    "color" => "some updated color",
+    "title" => "some updated title"
   }
-  @invalid_attrs %{color: nil, title: nil}
+
+  @invalid_attrs %{"color" => nil, "title" => nil}
 
   setup %{conn: conn} do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
@@ -41,24 +42,34 @@ defmodule GtdToDoApiWeb.CollectionControllerTest do
 
     test "lists all collections", %{conn: conn} do
       conn = get(conn, Routes.collection_path(conn, :index))
-      assert json_response(conn, 200)["data"] == []
+      assert json_response(conn, 200)["collections"] == []
     end
   end
 
   describe "create collection" do
     setup %{conn: conn}, do: setup_token_on_conn(conn)
 
-    test "renders collection when data is valid", %{conn: conn} do
-      conn = post(conn, Routes.collection_path(conn, :create), collection: @create_attrs)
-      assert %{"id" => id} = json_response(conn, 201)["data"]
+    test "renders collection when data is valid", %{conn: conn, user: user} do
+      create_attrs = setup_bucket_on_attrs(user, @create_attrs)
+
+      conn = post(conn, Routes.collection_path(conn, :create), collection: create_attrs)
+
+      assert %{"id" => id} = json_response(conn, 201)["collection"]
 
       conn = get(conn, Routes.collection_path(conn, :show, id))
 
+      links = "/collections/#{id}/lists"
+      %{"color" => color, "title" => title, "bucket" => bucket_id} = create_attrs
+
       assert %{
-               "id" => id,
-               "color" => "some color",
-               "title" => "some title"
-             } = json_response(conn, 200)["data"]
+               "id" => ^id,
+               "color" => ^color,
+               "title" => ^title,
+               "bucket" => ^bucket_id,
+               "links" => %{
+                 "lists" => ^links
+               }
+             } = json_response(conn, 200)["collection"]
     end
 
     test "renders errors when data is invalid", %{conn: conn} do
@@ -72,20 +83,32 @@ defmodule GtdToDoApiWeb.CollectionControllerTest do
 
     test "renders collection when data is valid", %{
       conn: conn,
-      collection: %Collection{id: id} = collection
+      collection: %Collection{id: id} = collection,
+      owner: owner
     } do
-      conn =
-        put(conn, Routes.collection_path(conn, :update, collection), collection: @update_attrs)
+      %GtdToDoApi.Containers.Bucket{id: bucket_id} = bucket_fixture(owner)
 
-      assert %{"id" => ^id} = json_response(conn, 200)["data"]
+      update_attrs = Map.put(@update_attrs, "bucket", bucket_id)
+
+      conn =
+        put(conn, Routes.collection_path(conn, :update, collection), collection: update_attrs)
+
+      links = "/collections/#{id}/lists"
+      %{"color" => color, "title" => title} = update_attrs
+
+      assert %{"id" => ^id} = json_response(conn, 200)["collection"]
 
       conn = get(conn, Routes.collection_path(conn, :show, id))
 
       assert %{
-               "id" => id,
-               "color" => "some updated color",
-               "title" => "some updated title"
-             } = json_response(conn, 200)["data"]
+               "id" => ^id,
+               "color" => ^color,
+               "title" => ^title,
+               "bucket" => ^bucket_id,
+               "links" => %{
+                 "lists" => ^links
+               }
+             } = json_response(conn, 200)["collection"]
     end
 
     test "renders errors when data is invalid", %{conn: conn, collection: collection} do
@@ -112,5 +135,12 @@ defmodule GtdToDoApiWeb.CollectionControllerTest do
     {:ok, conn: conn, token: _, user: owner} = setup_token_on_conn(conn)
 
     {:ok, conn: conn, collection: collection_fixture(owner), owner: owner}
+  end
+
+  defp setup_bucket_on_attrs(user, attrs) do
+    bucket = bucket_fixture(user)
+    attrs = Map.put(attrs, "bucket", bucket.id)
+
+    attrs
   end
 end

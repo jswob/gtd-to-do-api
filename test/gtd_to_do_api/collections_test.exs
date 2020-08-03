@@ -6,9 +6,9 @@ defmodule GtdToDoApi.CollectionsTest do
   alias GtdToDoApi.Collections.Collection
 
   describe "collections" do
-    @valid_attrs %{color: "some color", title: "some title"}
-    @update_attrs %{color: "some updated color", title: "some updated title"}
-    @invalid_attrs %{color: nil, title: nil}
+    @valid_attrs %{"color" => "some color", "title" => "some title"}
+    @update_attrs %{"color" => "some updated color", "title" => "some updated title"}
+    @invalid_attrs %{"color" => nil, "title" => nil}
 
     test "list_collections/0 returns all collections" do
       owner = user_fixture()
