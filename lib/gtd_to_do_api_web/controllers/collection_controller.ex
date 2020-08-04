@@ -6,34 +6,23 @@ defmodule GtdToDoApiWeb.CollectionController do
 
   action_fallback GtdToDoApiWeb.FallbackController
 
-  def index(conn, _params) do
+  def index(conn, params) do
     user = Guardian.Plug.current_resource(conn)
-    collections = Collections.list_users_collections(user)
+    collections = Collections.list_users_collections(user, params)
     render(conn, "index.json", collections: collections)
   end
 
   def index_bucket_collections(conn, %{"id" => bucket_id}) do
     user = Guardian.Plug.current_resource(conn)
-    bucket = GtdToDoApi.Containers.get_user_bucket!(user, bucket_id)
 
-    collections = Collections.list_bucket_collections(bucket)
+    params = %{
+      "filter" => %{
+        "bucket_id" => bucket_id
+      }
+    }
+
+    collections = Collections.list_users_collections(user, params)
     render(conn, "index.json", collections: collections)
-  end
-
-  def index_non_bucket_collections(conn, %{"id" => user_id}) do
-    user = Guardian.Plug.current_resource(conn)
-
-    cond do
-      to_string(user.id) == user_id ->
-        collections = Collections.list_non_bucket_collections(user)
-        render(conn, "index.json", collections: collections)
-
-      true ->
-        conn
-        |> put_status(:unauthorized)
-        |> put_view(GtdToDoApiWeb.ErrorView)
-        |> render("401.json", message: "Unathoraized to access that resource")
-    end
   end
 
   def show(conn, %{"id" => id}) do

@@ -45,6 +45,37 @@ defmodule GtdToDoApiWeb.CollectionControllerTest do
       conn = get(conn, Routes.collection_path(conn, :index))
       assert json_response(conn, 200)["collections"] == []
     end
+
+    test "lists all collections that match the query", %{conn: conn, user: owner} do
+      %GtdToDoApi.Containers.Bucket{id: bucket_id} = bucket_fixture(owner)
+
+      # Create main collection
+      collection_data = %{
+        "title" => "nice title",
+        "color" => "nice color",
+        "bucket_id" => bucket_id,
+        "bucket" => bucket_id
+      }
+
+      %Collection{id: owners_collection_id} = collection_fixture(owner, collection_data)
+
+      # Create bad collections
+      collection_fixture(owner)
+      collection_fixture(owner, %{"title" => "nice title"})
+      collection_fixture(owner, %{"title" => "nice title", "color" => "nice color"})
+
+      conn = get(conn, Routes.collection_path(conn, :index), %{"filter" => collection_data})
+
+      collections = json_response(conn, 200)["collections"]
+
+      assert [
+               %{
+                 "id" => ^owners_collection_id
+               }
+             ] = collections
+
+      assert 1 == Enum.count(collections)
+    end
   end
 
   describe "index bucket collections" do
@@ -72,45 +103,6 @@ defmodule GtdToDoApiWeb.CollectionControllerTest do
 
       assert [%{"id" => ^collection_1_id}, %{"id" => ^collection_2_id}] =
                json_response(conn, 200)["collections"]
-    end
-  end
-
-  describe "index non bucket collections" do
-    setup %{conn: conn}, do: setup_token_on_conn(conn)
-
-    test "lists all collections for given user id without bucket", %{conn: conn, user: owner} do
-      # Create collection for different user
-      sneaky_user = user_fixture(%{email: "sneaky email"})
-      collection_fixture(sneaky_user)
-
-      # Create collection with bucket
-      bucket = bucket_fixture(owner)
-      collection_fixture(owner, Map.put(@create_attrs, "bucket", bucket.id))
-
-      # Create two collections without buckets and with correct user
-      %Collection{id: collection_1_id} = collection_fixture(owner)
-      %Collection{id: collection_2_id} = collection_fixture(owner)
-
-      conn = get(conn, Routes.collection_path(conn, :index_non_bucket_collections, owner.id))
-
-      assert [%{"id" => ^collection_1_id}, %{"id" => ^collection_2_id}] =
-               json_response(conn, 200)["collections"]
-
-      assert 2 = Enum.count(json_response(conn, 200)["collections"])
-    end
-
-    test "if user_id and real user id are different return 401 error", %{conn: conn} do
-      # Create bad user
-      sneaky_user = user_fixture(%{email: "sneaky email"})
-
-      conn =
-        get(conn, Routes.collection_path(conn, :index_non_bucket_collections, sneaky_user.id))
-
-      assert %{
-               "errors" => %{
-                 "detail" => "Unathoraized to access that resource"
-               }
-             } = json_response(conn, 401)
     end
   end
 
