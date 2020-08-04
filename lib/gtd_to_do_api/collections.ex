@@ -13,29 +13,23 @@ defmodule GtdToDoApi.Collections do
     Repo.all(Collection)
   end
 
-  def list_users_collections(user) do
-    user
-    |> users_collection_query()
+  def list_users_collections(user, %{"filter" => filter}) do
+    create_collection_query_conditions(user, filter)
+    |> list_collection_query()
     |> Repo.all()
   end
 
-  def list_non_bucket_collections(user) do
-    user
-    |> non_bucket_collections_query()
-    |> Repo.all()
-  end
-
-  def list_bucket_collections(bucket) do
-    bucket
-    |> bucket_collections_query()
+  def list_users_collections(user, _) do
+    create_collection_query_conditions(user, %{})
+    |> list_collection_query()
     |> Repo.all()
   end
 
   def get_collection!(id), do: Repo.get!(Collection, id)
 
   def get_users_collection!(user, id) do
-    user
-    |> users_collection_query()
+    create_collection_query_conditions(user, %{})
+    |> list_collection_query()
     |> Repo.get(id)
   end
 
@@ -65,22 +59,47 @@ defmodule GtdToDoApi.Collections do
     Collection.changeset(collection, %{})
   end
 
-  defp users_collection_query(%User{id: owner_id}) do
+  defp list_collection_query(conditions) do
     from(c in Collection,
-      where: c.owner_id == ^owner_id,
+      where: ^conditions,
       preload: [bucket: c]
     )
   end
 
-  defp non_bucket_collections_query(%User{id: owner_id}) do
-    from(c in Collection,
-      where: c.owner_id == ^owner_id and is_nil(c.bucket_id),
-      preload: [bucket: c]
-    )
-  end
+  defp create_collection_query_conditions(user, filter) do
+    conditions = dynamic([c], c.owner_id == ^user.id)
 
-  defp bucket_collections_query(%GtdToDoApi.Containers.Bucket{id: bucket_id}) do
-    from(c in Collection, where: c.bucket_id == ^bucket_id)
+    conditions =
+      case filter do
+        %{"bucket_id" => ""} ->
+          dynamic([c], is_nil(c.bucket_id) and ^conditions)
+
+        %{"bucket_id" => bucket_id} ->
+          dynamic([c], c.bucket_id == ^bucket_id and ^conditions)
+
+        _ ->
+          conditions
+      end
+
+    conditions =
+      case filter do
+        %{"title" => title} ->
+          dynamic([c], c.title == ^title and ^conditions)
+
+        _ ->
+          conditions
+      end
+
+    conditions =
+      case filter do
+        %{"color" => color} ->
+          dynamic([c], c.color == ^color and ^conditions)
+
+        _ ->
+          conditions
+      end
+
+    conditions
   end
 
   # list

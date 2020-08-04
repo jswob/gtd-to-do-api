@@ -16,61 +16,45 @@ defmodule GtdToDoApi.CollectionsTest do
       assert [%Collection{id: ^id}] = Collections.list_collections()
     end
 
-    test "list_users_collections/1 returns all users collections" do
+    test "list_users_collections/2 returns all users collections" do
       owner = user_fixture()
       second_user = user_fixture(%{email: "second user"})
       %Collection{id: owners_collection_id} = collection_fixture(owner)
       collection_fixture(second_user)
-      collections = Collections.list_users_collections(owner)
+      collections = Collections.list_users_collections(owner, %{})
 
       assert 1 == Enum.count(collections)
       assert [%Collection{id: ^owners_collection_id}] = collections
     end
 
-    test "list_non_bucket_collections/1 returns all users collections that don't have bucket_id" do
+    test "list_users_collections/2 filters collections by params" do
+      # Create user
       owner = user_fixture()
 
-      # Create collection for different user
-      sneaky_user = user_fixture(%{email: "sneaky email"})
-      collection_fixture(sneaky_user)
+      %GtdToDoApi.Containers.Bucket{id: bucket_id} = bucket_fixture(owner)
 
-      # Create collection with bucket
-      bucket = bucket_fixture(owner)
-      collection_fixture(owner, Map.put(@valid_attrs, "bucket", bucket.id))
+      # Create main collection
+      collection_data = %{
+        "title" => "nice title",
+        "color" => "nice color",
+        "bucket_id" => bucket_id,
+        "bucket" => bucket_id
+      }
 
-      # Create two collections without buckets and with correct user
-      %Collection{id: collection_1_id} = collection_fixture(owner)
-      %Collection{id: collection_2_id} = collection_fixture(owner)
+      %Collection{id: owners_collection_id} = collection_fixture(owner, collection_data)
 
-      collections = Collections.list_non_bucket_collections(owner)
-
-      assert [%{id: ^collection_1_id}, %{id: ^collection_2_id}] = collections
-      assert 2 = Enum.count(collections)
-    end
-
-    test "list_bucket_collections/1 returns all collections with given bucket id" do
-      owner = user_fixture()
-
-      # Create collection for different user
-      sneaky_user = user_fixture(%{email: "sneaky email"})
-      collection_fixture(sneaky_user)
-
-      # Create two collections without buckets and with correct user
+      # Create bad collections
       collection_fixture(owner)
+      collection_fixture(owner, %{"title" => "nice title"})
+      collection_fixture(owner, %{"title" => "nice title", "color" => "nice color"})
 
-      # Create collection with bucket
-      bucket = bucket_fixture(owner)
+      collections =
+        Collections.list_users_collections(owner, %{
+          "filter" => collection_data
+        })
 
-      %Collection{id: collection_1_id} =
-        collection_fixture(owner, Map.put(@valid_attrs, "bucket", bucket.id))
-
-      %Collection{id: collection_2_id} =
-        collection_fixture(owner, Map.put(@valid_attrs, "bucket", bucket.id))
-
-      collections = Collections.list_bucket_collections(bucket)
-
-      assert [%{id: ^collection_1_id}, %{id: ^collection_2_id}] = collections
-      assert 2 = Enum.count(collections)
+      assert 1 == Enum.count(collections)
+      assert [%Collection{id: ^owners_collection_id}] = collections
     end
 
     test "get_collection!/1 returns the collection with given id" do
