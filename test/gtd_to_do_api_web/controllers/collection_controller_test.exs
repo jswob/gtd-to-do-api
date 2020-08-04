@@ -126,7 +126,7 @@ defmodule GtdToDoApiWeb.CollectionControllerTest do
 
       conn = get(conn, Routes.collection_path(conn, :show, id))
 
-      links = "/collections/#{id}/lists"
+      links = "/api/collections/#{id}/lists"
       %{"color" => color, "title" => title, "bucket" => bucket_id} = create_attrs
 
       assert %{
@@ -161,7 +161,7 @@ defmodule GtdToDoApiWeb.CollectionControllerTest do
       conn =
         put(conn, Routes.collection_path(conn, :update, collection), collection: update_attrs)
 
-      links = "/collections/#{id}/lists"
+      links = "/api/collections/#{id}/lists"
       %{"color" => color, "title" => title} = update_attrs
 
       assert %{"id" => ^id} = json_response(conn, 200)["collection"]

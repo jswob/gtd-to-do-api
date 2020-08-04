@@ -11,7 +11,7 @@ defmodule GtdToDoApiWeb.CollectionView do
   end
 
   def render("collection.json", %{collection: collection}) do
-    link = "/collections/#{collection.id}/lists"
+    link = "/api/collections/#{collection.id}/lists"
 
     %{
       id: collection.id,

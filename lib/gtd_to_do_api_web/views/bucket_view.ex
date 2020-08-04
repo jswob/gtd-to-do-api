@@ -11,7 +11,7 @@ defmodule GtdToDoApiWeb.BucketView do
   end
 
   def render("bucket.json", %{bucket: bucket}) do
-    link = "/buckets/#{bucket.id}/collections"
+    link = "/api/buckets/#{bucket.id}/collections"
 
     %{
       id: bucket.id,
