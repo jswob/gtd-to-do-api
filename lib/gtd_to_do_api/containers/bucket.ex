@@ -7,7 +7,7 @@ defmodule GtdToDoApi.Containers.Bucket do
     field :title, :string
 
     belongs_to :owner, GtdToDoApi.Accounts.User
-    has_many :collections, GtdToDoApi.Collections.Collection
+    has_many :collections, GtdToDoApi.Collections.Collection, on_delete: :nilify_all
 
     timestamps()
   end
