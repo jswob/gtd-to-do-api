@@ -26,6 +26,8 @@ defmodule GtdToDoApi.Containers do
   end
 
   def create_bucket(%User{} = owner, attrs \\ %{}) do
+    attrs = Map.put(attrs, "owner", owner)
+
     %Bucket{}
     |> Bucket.changeset(attrs)
     |> Ecto.Changeset.put_assoc(:owner, owner)
