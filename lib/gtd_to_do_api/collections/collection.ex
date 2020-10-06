@@ -7,7 +7,7 @@ defmodule GtdToDoApi.Collections.Collection do
     field :title, :string
 
     belongs_to :owner, GtdToDoApi.Accounts.User
-    belongs_to :bucket, GtdToDoApi.Containers.Bucket
+    belongs_to :bucket, GtdToDoApi.Containers.Bucket, on_replace: :nilify
     has_many :lists, GtdToDoApi.Collections.List
 
     timestamps()
@@ -23,10 +23,13 @@ defmodule GtdToDoApi.Collections.Collection do
   end
 
   def add_bucket(collection, %{"bucket" => bucket_id, "owner" => owner}) do
-    bucket = GtdToDoApi.Containers.get_user_bucket!(owner, bucket_id)
+    case bucket_id do
+      nil ->
+        put_assoc(collection, :bucket, nil)
 
-    collection
-    |> put_assoc(:bucket, bucket)
+      id ->
+        put_assoc(collection, :bucket, GtdToDoApi.Containers.get_user_bucket!(owner, id))
+    end
   end
 
   def add_bucket(collection, _), do: collection
