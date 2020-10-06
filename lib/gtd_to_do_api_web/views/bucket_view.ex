@@ -17,6 +17,7 @@ defmodule GtdToDoApiWeb.BucketView do
       id: bucket.id,
       title: bucket.title,
       color: bucket.color,
+      owner: bucket.owner_id,
       links: %{
         collections: link
       }

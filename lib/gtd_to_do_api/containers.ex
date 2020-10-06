@@ -34,8 +34,11 @@ defmodule GtdToDoApi.Containers do
     |> Repo.insert()
   end
 
-  def update_bucket(%Bucket{} = bucket, attrs) do
+  def update_bucket(%User{} = owner, %Bucket{} = bucket, attrs) do
+    attrs = Map.put(attrs, "owner", owner)
+
     bucket
+    |> Repo.preload([:collections])
     |> Bucket.changeset(attrs)
     |> Repo.update()
   end

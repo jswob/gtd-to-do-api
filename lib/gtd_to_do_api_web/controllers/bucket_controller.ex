@@ -32,15 +32,19 @@ defmodule GtdToDoApiWeb.BucketController do
   end
 
   def update(conn, %{"id" => id, "bucket" => bucket_params}) do
-    user = Guardian.Plug.current_resource(conn)
+    owner = Guardian.Plug.current_resource(conn)
 
-    bucket = Containers.get_user_bucket!(user, id)
+    bucket = Containers.get_user_bucket!(owner, id)
 
-    with {:ok, %Bucket{} = bucket} <- Containers.update_bucket(bucket, bucket_params) do
-      render(conn, "show.json", bucket: bucket)
+    with {:ok, %Bucket{} = bucket} <- Containers.update_bucket(owner, bucket, bucket_params) do
+      conn
+      |> put_status(204)
+      |> put_resp_header("location", Routes.bucket_path(conn, :show, bucket))
+      |> render("show.json", bucket: bucket)
     end
   end
 
+  @spec delete(Plug.Conn.t(), map) :: any
   def delete(conn, %{"id" => id}) do
     user = Guardian.Plug.current_resource(conn)
 
