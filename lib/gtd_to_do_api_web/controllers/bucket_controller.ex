@@ -38,7 +38,7 @@ defmodule GtdToDoApiWeb.BucketController do
 
     with {:ok, %Bucket{} = bucket} <- Containers.update_bucket(owner, bucket, bucket_params) do
       conn
-      |> put_status(204)
+      |> put_status(200)
       |> put_resp_header("location", Routes.bucket_path(conn, :show, bucket))
       |> render("show.json", bucket: bucket)
     end

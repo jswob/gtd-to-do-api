@@ -102,6 +102,11 @@ defmodule GtdToDoApiWeb.BucketControllerTest do
   defp create_bucket(conn) do
     {:ok, conn: conn, token: _, user: owner} = setup_token_on_conn(conn)
 
-    {:ok, conn: conn, bucket: bucket_fixture(owner), owner: owner}
+    collection_params = collection_params_fixture(owner)
+
+    {:ok,
+     conn: conn,
+     bucket: bucket_fixture(owner, %{"collections" => [collection_params]}),
+     owner: owner}
   end
 end
