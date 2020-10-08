@@ -35,8 +35,8 @@ defmodule GtdToDoApi.CollectionsTest do
 
       # Create main collection
       collection_data = %{
-        "title" => "nice title",
-        "color" => "nice color",
+        "title" => "some title",
+        "color" => "some color",
         "bucket_id" => bucket_id,
         "bucket" => bucket_id
       }
@@ -46,7 +46,7 @@ defmodule GtdToDoApi.CollectionsTest do
       # Create bad collections
       collection_fixture(owner)
       collection_fixture(owner, %{"title" => "nice title"})
-      collection_fixture(owner, %{"title" => "nice title", "color" => "nice color"})
+      collection_fixture(owner, %{"title" => "some title", "color" => "some color"})
 
       collections =
         Collections.list_users_collections(owner, %{

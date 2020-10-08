@@ -121,9 +121,6 @@ defmodule GtdToDoApi.ContainersTest do
 
       updated_bucket = GtdToDoApi.Repo.preload(updated_bucket, [:collections])
 
-      require IEx
-      IEx.pry()
-
       assert updated_bucket.title == "some updated title"
       assert updated_bucket.color == "some updated color"
       assert bucket_id_1 == nil

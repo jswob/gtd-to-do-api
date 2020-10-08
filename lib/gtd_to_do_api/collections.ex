@@ -47,6 +47,7 @@ defmodule GtdToDoApi.Collections do
     attrs = Map.put(attrs, "owner", owner)
 
     collection
+    |> Repo.preload([:bucket])
     |> Collection.changeset(attrs)
     |> Repo.update()
   end
