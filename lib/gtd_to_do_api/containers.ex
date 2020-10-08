@@ -34,7 +34,7 @@ defmodule GtdToDoApi.Containers do
     |> Repo.insert()
   end
 
-  def update_bucket(%User{} = owner, %Bucket{} = bucket, attrs) do
+  def update_bucket(%User{} = owner, %Bucket{} = bucket, attrs \\ %{}) do
     attrs = Map.put(attrs, "owner", owner)
 
     bucket
