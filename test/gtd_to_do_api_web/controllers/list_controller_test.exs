@@ -2,6 +2,7 @@ defmodule GtdToDoApiWeb.ListControllerTest do
   use GtdToDoApiWeb.ConnCase
 
   alias GtdToDoApi.Collections.List
+  alias GtdToDoApi.Collections.Collection
 
   @create_attrs %{
     color: "some color",
@@ -44,7 +45,29 @@ defmodule GtdToDoApiWeb.ListControllerTest do
 
     test "lists all lists", %{conn: conn, list: %List{id: list_id}, collection: collection} do
       conn = get(conn, Routes.list_path(conn, :index), collection: collection)
-      assert [%{"id" => ^list_id}] = json_response(conn, 200)["data"]
+      assert [%{"id" => ^list_id}] = json_response(conn, 200)["lists"]
+    end
+  end
+
+  describe "index collection lists" do
+    setup %{conn: conn} do
+      {:ok, conn: conn, token: _, user: user} = setup_token_on_conn(conn)
+      {:ok, list: list, collection: collection} = create_list(user)
+      {:ok, conn: conn, list: list, collection: collection, owner: user}
+    end
+
+    test "lists only lists that belongs to selected collection", %{
+      conn: conn,
+      list: %List{id: list_id},
+      collection: %Collection{id: collection_id},
+      owner: owner
+    } do
+      collection_fixture(owner)
+
+      conn = get(conn, Routes.list_path(conn, :index_collection_lists, collection_id))
+
+      assert [%{"id" => ^list_id, "collection" => ^collection_id}] =
+               json_response(conn, 200)["lists"]
     end
   end
 
@@ -54,10 +77,10 @@ defmodule GtdToDoApiWeb.ListControllerTest do
     test "renders list when data is valid", %{conn: conn, user: owner} do
       collection = collection_fixture(owner)
 
-      attrs = Enum.into(%{collection_id: collection.id}, @create_attrs)
+      attrs = Enum.into(%{collection: collection.id}, @create_attrs)
 
       conn = post(conn, Routes.list_path(conn, :create), list: attrs)
-      assert %{"id" => id} = json_response(conn, 201)["data"]
+      assert %{"id" => id} = json_response(conn, 201)["list"]
 
       conn = get(conn, Routes.list_path(conn, :show, id))
 
@@ -65,13 +88,13 @@ defmodule GtdToDoApiWeb.ListControllerTest do
                "id" => id,
                "color" => "some color",
                "title" => "some title"
-             } = json_response(conn, 200)["data"]
+             } = json_response(conn, 200)["list"]
     end
 
     test "renders errors when data is invalid", %{conn: conn, user: owner} do
       collection = collection_fixture(owner)
 
-      attrs = Enum.into(%{collection_id: collection.id}, @invalid_attrs)
+      attrs = Enum.into(%{collection: collection.id}, @invalid_attrs)
 
       conn = post(conn, Routes.list_path(conn, :create), list: attrs)
       assert json_response(conn, 422)["errors"] != %{}
@@ -87,7 +110,7 @@ defmodule GtdToDoApiWeb.ListControllerTest do
 
     test "renders list when data is valid", %{conn: conn, list: %List{id: id} = list} do
       conn = put(conn, Routes.list_path(conn, :update, list), list: @update_attrs)
-      assert %{"id" => ^id} = json_response(conn, 200)["data"]
+      assert %{"id" => ^id} = json_response(conn, 200)["list"]
 
       conn = get(conn, Routes.list_path(conn, :show, id))
 
@@ -95,7 +118,7 @@ defmodule GtdToDoApiWeb.ListControllerTest do
                "id" => id,
                "color" => "some updated color",
                "title" => "some updated title"
-             } = json_response(conn, 200)["data"]
+             } = json_response(conn, 200)["list"]
     end
 
     test "renders errors when data is invalid", %{conn: conn, list: list} do
