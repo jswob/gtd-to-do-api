@@ -104,7 +104,7 @@ defmodule GtdToDoApi.Collections do
   end
 
   # list
-  # /////////////////////////////////////////////////////////////
+  ##########################################################
 
   alias GtdToDoApi.Collections.List
 

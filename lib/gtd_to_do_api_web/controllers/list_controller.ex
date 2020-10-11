@@ -12,7 +12,16 @@ defmodule GtdToDoApiWeb.ListController do
     render(conn, "index.json", lists: lists)
   end
 
-  def create(conn, %{"list" => %{"collection_id" => collection_id} = list_params}) do
+  def index_collection_lists(conn, %{"id" => collection_id}) do
+    user = Guardian.Plug.current_resource(conn)
+
+    collection = Collections.get_users_collection!(user, collection_id)
+
+    lists = Collections.list_collection_lists(collection)
+    render(conn, "index.json", lists: lists)
+  end
+
+  def create(conn, %{"list" => %{"collection" => collection_id} = list_params}) do
     owner = Guardian.Plug.current_resource(conn)
     collection = Collections.get_users_collection!(owner, collection_id)
 
