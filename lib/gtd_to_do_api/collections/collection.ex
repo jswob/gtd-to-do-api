@@ -8,7 +8,7 @@ defmodule GtdToDoApi.Collections.Collection do
 
     belongs_to :owner, GtdToDoApi.Accounts.User
     belongs_to :bucket, GtdToDoApi.Containers.Bucket, on_replace: :nilify
-    has_many :lists, GtdToDoApi.Collections.List
+    has_many :lists, GtdToDoApi.Collections.List, on_delete: :delete_all
 
     timestamps()
   end
