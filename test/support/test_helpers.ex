@@ -65,7 +65,7 @@ defmodule GtdToDoApi.TestHelpers do
     list
   end
 
-  @valid_task_attrs %{content: "some content", is_done: false}
+  @valid_task_attrs %{"content" => "some content", "is_done" => false}
 
   def task_fixture(attrs \\ %{}) do
     owner = user_fixture()

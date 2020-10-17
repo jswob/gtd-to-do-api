@@ -5,14 +5,14 @@ defmodule GtdToDoApiWeb.TaskControllerTest do
   alias GtdToDoApi.Tasks.Task
 
   @create_attrs %{
-    content: "some content",
-    is_done: true
+    "content" => "some content",
+    "is_done" => true
   }
   @update_attrs %{
-    content: "some updated content",
-    is_done: false
+    "content" => "some updated content",
+    "is_done" => false
   }
-  @invalid_attrs %{content: nil, is_done: nil}
+  @invalid_attrs %{"content" => nil, "is_done" => nil}
 
   setup %{conn: conn} do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
@@ -41,7 +41,17 @@ defmodule GtdToDoApiWeb.TaskControllerTest do
 
     test "lists all tasks", %{conn: conn, task: %Task{id: task_id}, list: list} do
       conn = get(conn, Routes.task_path(conn, :index), list_id: list.id)
-      assert [%{"id" => ^task_id}] = json_response(conn, 200)["data"]
+      assert [%{"id" => ^task_id}] = json_response(conn, 200)["tasks"]
+    end
+  end
+
+  describe "index list tasks" do
+    setup %{conn: conn}, do: set_up_task(conn)
+
+    test "lists all tasks", %{conn: conn, task: %Task{id: task_id}, list: %{id: list_id}} do
+      conn = get(conn, Routes.task_path(conn, :index_list_tasks, list_id))
+
+      assert [%{"id" => ^task_id, "list" => ^list_id}] = json_response(conn, 200)["tasks"]
     end
   end
 
@@ -52,10 +62,10 @@ defmodule GtdToDoApiWeb.TaskControllerTest do
       collection = collection_fixture(owner)
       list = list_fixture(owner, collection)
 
-      attrs = Enum.into(%{list_id: list.id}, @create_attrs)
+      attrs = Enum.into(%{"list" => list.id}, @create_attrs)
 
       conn = post(conn, Routes.task_path(conn, :create), task: attrs)
-      assert %{"id" => id} = json_response(conn, 201)["data"]
+      assert %{"id" => id} = json_response(conn, 201)["task"]
 
       conn = get(conn, Routes.task_path(conn, :show, id))
 
@@ -63,14 +73,14 @@ defmodule GtdToDoApiWeb.TaskControllerTest do
                "id" => id,
                "content" => "some content",
                "is_done" => true
-             } = json_response(conn, 200)["data"]
+             } = json_response(conn, 200)["task"]
     end
 
     test "renders errors when data is invalid", %{conn: conn, user: owner} do
       collection = collection_fixture(owner)
       list = list_fixture(owner, collection)
 
-      attrs = Enum.into(%{list_id: list.id}, @invalid_attrs)
+      attrs = Enum.into(%{"list" => list.id}, @invalid_attrs)
 
       conn = post(conn, Routes.task_path(conn, :create), task: attrs)
       assert json_response(conn, 422)["errors"] != %{}
@@ -82,7 +92,7 @@ defmodule GtdToDoApiWeb.TaskControllerTest do
 
     test "renders task when data is valid", %{conn: conn, task: %Task{id: id} = task} do
       conn = put(conn, Routes.task_path(conn, :update, task), task: @update_attrs)
-      assert %{"id" => ^id} = json_response(conn, 200)["data"]
+      assert %{"id" => ^id} = json_response(conn, 200)["task"]
 
       conn = get(conn, Routes.task_path(conn, :show, id))
 
@@ -90,7 +100,7 @@ defmodule GtdToDoApiWeb.TaskControllerTest do
                "id" => id,
                "content" => "some updated content",
                "is_done" => false
-             } = json_response(conn, 200)["data"]
+             } = json_response(conn, 200)["task"]
     end
 
     test "renders errors when data is invalid", %{conn: conn, task: task} do

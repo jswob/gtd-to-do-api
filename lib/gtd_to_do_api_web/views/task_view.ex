@@ -11,6 +11,12 @@ defmodule GtdToDoApiWeb.TaskView do
   end
 
   def render("task.json", %{task: task}) do
-    %{id: task.id, content: task.content, is_done: task.is_done}
+    %{
+      id: task.id,
+      content: task.content,
+      is_done: task.is_done,
+      list: task.list_id,
+      owner: task.owner_id
+    }
   end
 end

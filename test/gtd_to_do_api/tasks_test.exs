@@ -6,9 +6,9 @@ defmodule GtdToDoApi.TasksTest do
   describe "tasks" do
     alias GtdToDoApi.Tasks.Task
 
-    @valid_attrs %{content: "some content", is_done: true}
-    @update_attrs %{content: "some updated content", is_done: false}
-    @invalid_attrs %{content: nil, is_done: nil}
+    @valid_attrs %{"content" => "some content", "is_done" => false}
+    @update_attrs %{"content" => "some updated content", "is_done" => true}
+    @invalid_attrs %{"content" => nil, "is_done" => nil}
 
     test "list_tasks/0 returns all tasks" do
       %{task: %Task{id: task_id}} = task_fixture()
@@ -37,7 +37,7 @@ defmodule GtdToDoApi.TasksTest do
 
       assert {:ok, %Task{} = task} = Tasks.create_task(owner, list, @valid_attrs)
       assert task.content == "some content"
-      assert task.is_done == true
+      assert task.is_done == false
     end
 
     test "create_task/1 with invalid data returns error changeset" do
@@ -52,7 +52,7 @@ defmodule GtdToDoApi.TasksTest do
       %{task: task} = task_fixture()
       assert {:ok, %Task{} = task} = Tasks.update_task(task, @update_attrs)
       assert task.content == "some updated content"
-      assert task.is_done == false
+      assert task.is_done == true
     end
 
     test "update_task/2 with invalid data returns error changeset" do
