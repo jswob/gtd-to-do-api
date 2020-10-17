@@ -3,6 +3,7 @@ defmodule GtdToDoApiWeb.TaskController do
 
   alias GtdToDoApi.Tasks
   alias GtdToDoApi.Tasks.Task
+  alias GtdToDoApi.Collections
 
   action_fallback GtdToDoApiWeb.FallbackController
 
@@ -14,7 +15,15 @@ defmodule GtdToDoApiWeb.TaskController do
     render(conn, "index.json", tasks: tasks)
   end
 
-  def create(conn, %{"task" => %{"list_id" => list_id} = task_params}) do
+  def index_list_tasks(conn, %{"id" => list_id}) do
+    user = Guardian.Plug.current_resource(conn)
+    list = Collections.get_user_list!(user, list_id)
+
+    tasks = Tasks.list_list_tasks(list)
+    render(conn, "index.json", tasks: tasks)
+  end
+
+  def create(conn, %{"task" => %{"list" => list_id} = task_params}) do
     owner = Guardian.Plug.current_resource(conn)
     list = GtdToDoApi.Collections.get_user_list!(owner, list_id)
 
