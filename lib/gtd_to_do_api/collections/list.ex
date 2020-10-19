@@ -7,8 +7,8 @@ defmodule GtdToDoApi.Collections.List do
     field :title, :string
 
     belongs_to :owner, GtdToDoApi.Accounts.User
-    belongs_to :collection, GtdToDoApi.Collections.Collection, on_replace: :nilify
-    has_many :tasks, GtdToDoApi.Tasks.Task, on_delete: :delete_all, on_replace: :delete
+    belongs_to :collection, GtdToDoApi.Collections.Collection
+    has_many :tasks, GtdToDoApi.Tasks.Task, on_delete: :delete_all
 
     timestamps()
   end

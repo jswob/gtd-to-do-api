@@ -8,6 +8,14 @@ defmodule GtdToDoApi.Accounts.User do
     field :password, :string, virtual: true
     field :password_hash, :string
 
+    has_many :buckets, GtdToDoApi.Containers.Bucket,
+      foreign_key: :owner_id,
+      on_delete: :delete_all
+
+    has_many :collections, GtdToDoApi.Collections.Collection,
+      foreign_key: :owner_id,
+      on_delete: :delete_all
+
     timestamps()
   end
 
