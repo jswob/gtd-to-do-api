@@ -96,13 +96,16 @@ defmodule GtdToDoApi.CollectionsTest do
 
     test "update_collection/2 with valid data updates the collection" do
       owner = user_fixture()
+      %GtdToDoApi.Containers.Bucket{id: bucket_id} = bucket_fixture(owner)
       collection = collection_fixture(owner)
 
-      assert {:ok, %Collection{} = collection} =
-               Collections.update_collection(collection, @update_attrs)
+      attrs = Enum.into(@update_attrs, %{"bucket" => bucket_id})
+
+      assert {:ok, %Collection{} = collection} = Collections.update_collection(collection, attrs)
 
       assert collection.color == "some updated color"
       assert collection.title == "some updated title"
+      assert collection.bucket_id == bucket_id
     end
 
     test "update_collection/2 with invalid data returns error changeset" do
