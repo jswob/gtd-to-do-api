@@ -130,14 +130,14 @@ defmodule GtdToDoApiWeb.UserControllerTest do
                "email" => ^email,
                "id" => ^id,
                "password_hash" => ^password_hash
-             } = json_response(conn, 200)["users"]
+             } = json_response(conn, 200)["user"]
     end
   end
 
   describe "create user" do
     test "renders user and update session when data is valid", %{conn: conn} do
       conn = post(conn, Routes.user_path(conn, :create), user: @create_attrs)
-      assert %{"id" => id} = json_response(conn, 201)["users"]
+      assert %{"id" => id} = json_response(conn, 201)["user"]
 
       user = GtdToDoApi.Accounts.get_user!(id)
 
@@ -159,7 +159,7 @@ defmodule GtdToDoApiWeb.UserControllerTest do
 
     test "renders user when data is valid", %{conn: conn, user: %User{id: id} = user} do
       conn = put(conn, Routes.user_path(conn, :update, user), user: @update_attrs)
-      assert %{"id" => ^id} = json_response(conn, 200)["users"]
+      assert %{"id" => ^id} = json_response(conn, 200)["user"]
 
       conn = get(conn, Routes.user_path(conn, :show, id))
 
@@ -167,7 +167,7 @@ defmodule GtdToDoApiWeb.UserControllerTest do
                "id" => id,
                "avatar_url" => "some updated avatar_url",
                "email" => "some updated email"
-             } = json_response(conn, 200)["users"]
+             } = json_response(conn, 200)["user"]
     end
 
     test "renders errors when data is invalid", %{conn: conn, user: user} do

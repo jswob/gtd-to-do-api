@@ -2,18 +2,20 @@ defmodule GtdToDoApiWeb.UserView do
   use GtdToDoApiWeb, :view
   alias GtdToDoApiWeb.UserView
 
+  def render("index.json", %{users: users}) do
+    %{users: render_many(users, UserView, "user.json")}
+  end
+
   def render("show.json", %{user: user}) do
-    render_one(user, UserView, "user.json")
+    %{user: render_one(user, UserView, "user.json")}
   end
 
   def render("user.json", %{user: user}) do
     %{
-      users: %{
-        id: user.id,
-        email: user.email,
-        password_hash: user.password_hash,
-        avatar_url: user.avatar_url
-      }
+      id: user.id,
+      email: user.email,
+      password_hash: user.password_hash,
+      avatar_url: user.avatar_url
     }
   end
 
