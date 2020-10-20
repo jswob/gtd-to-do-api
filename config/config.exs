@@ -13,7 +13,7 @@ config :gtd_to_do_api,
 # Configures the endpoint
 config :gtd_to_do_api, GtdToDoApiWeb.Endpoint,
   url: [host: "localhost"],
-  secret_key_base: "vKumS965AlzfV+g/1zUucaJAabo+h/7TGgKTR5hWJgG09+rUCT0BIQUMbxlm7jfN",
+  secret_key_base: System.get_env("SECRET_KEY_BASE"),
   render_errors: [view: GtdToDoApiWeb.ErrorView, accepts: ~w(json)],
   pubsub: [name: GtdToDoApi.PubSub, adapter: Phoenix.PubSub.PG2]
 
