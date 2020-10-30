@@ -36,19 +36,6 @@ defmodule GtdToDoApiWeb.ListControllerTest do
     end
   end
 
-  describe "index" do
-    setup %{conn: conn} do
-      {:ok, conn: conn, token: _, user: user} = setup_token_on_conn(conn)
-      {:ok, list: list, collection: collection} = create_list(user)
-      {:ok, conn: conn, list: list, collection: collection}
-    end
-
-    test "lists all lists", %{conn: conn, list: %List{id: list_id}, collection: collection} do
-      conn = get(conn, Routes.list_path(conn, :index), collection: collection)
-      assert [%{"id" => ^list_id}] = json_response(conn, 200)["lists"]
-    end
-  end
-
   describe "index collection lists" do
     setup %{conn: conn} do
       {:ok, conn: conn, token: _, user: user} = setup_token_on_conn(conn)

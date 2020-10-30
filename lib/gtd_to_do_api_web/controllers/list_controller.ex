@@ -7,11 +7,6 @@ defmodule GtdToDoApiWeb.ListController do
 
   action_fallback GtdToDoApiWeb.FallbackController
 
-  def index(conn, %{"collection" => collection}) do
-    lists = Collections.list_collection_lists(collection)
-    render(conn, "index.json", lists: lists)
-  end
-
   def index_collection_lists(conn, %{"id" => collection_id}) do
     user = Guardian.Plug.current_resource(conn)
 
