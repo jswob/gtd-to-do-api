@@ -18,7 +18,7 @@ defmodule GtdToDoApi.AuthTest do
     user_password = "some password"
     %User{id: id, email: email} = user_fixture(%{password: user_password})
 
-    assert {:ok, token, refresh_token, expiration, ^id} =
+    assert {:ok, token, refresh_token, _expiration, ^id} =
              Auth.authenticate_user(email, user_password)
 
     id = to_string(id)
@@ -39,7 +39,7 @@ defmodule GtdToDoApi.AuthTest do
     {:ok, refresh_token, %{"sub" => id}} =
       Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {1, :minute})
 
-    assert {:ok, token, refresh_token, expiration, user_id} =
+    assert {:ok, token, refresh_token, _expiration, _user_id} =
              Auth.authenticate_user(refresh_token)
 
     assert {:ok, %{"sub" => ^id}} = Guardian.decode_and_verify(token, %{})

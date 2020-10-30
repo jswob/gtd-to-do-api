@@ -70,7 +70,7 @@ defmodule GtdToDoApiWeb.TaskControllerTest do
       conn = get(conn, Routes.task_path(conn, :show, id))
 
       assert %{
-               "id" => id,
+               "id" => ^id,
                "content" => "some content",
                "is_done" => true
              } = json_response(conn, 200)["task"]
@@ -97,7 +97,7 @@ defmodule GtdToDoApiWeb.TaskControllerTest do
       conn = get(conn, Routes.task_path(conn, :show, id))
 
       assert %{
-               "id" => id,
+               "id" => ^id,
                "content" => "some updated content",
                "is_done" => false
              } = json_response(conn, 200)["task"]

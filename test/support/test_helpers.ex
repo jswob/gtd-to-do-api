@@ -1,5 +1,5 @@
 defmodule GtdToDoApi.TestHelpers do
-  use Phoenix.ConnTest
+  import Plug.Conn
 
   alias GtdToDoApi.Accounts
   alias GtdToDoApi.Collections

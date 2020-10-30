@@ -9,6 +9,7 @@ defmodule GtdToDoApi.Application do
     # List all child processes to be supervised
     children = [
       # Start the Ecto repository
+      {Phoenix.PubSub, name: GtdToDoApi.PubSub},
       GtdToDoApi.Repo,
       # Start the endpoint when the application starts
       GtdToDoApiWeb.Endpoint

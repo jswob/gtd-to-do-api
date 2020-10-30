@@ -52,7 +52,7 @@ defmodule GtdToDoApiWeb.BucketControllerTest do
       conn = get(conn, Routes.bucket_path(conn, :show, id))
 
       assert %{
-               "id" => id,
+               "id" => ^id,
                "color" => "some color",
                "title" => "some title"
              } = json_response(conn, 200)["bucket"]
@@ -74,7 +74,7 @@ defmodule GtdToDoApiWeb.BucketControllerTest do
       conn = get(conn, Routes.bucket_path(conn, :show, id))
 
       assert %{
-               "id" => id,
+               "id" => ^id,
                "color" => "some updated color",
                "title" => "some updated title"
              } = json_response(conn, 200)["bucket"]

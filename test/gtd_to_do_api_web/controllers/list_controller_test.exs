@@ -85,7 +85,7 @@ defmodule GtdToDoApiWeb.ListControllerTest do
       conn = get(conn, Routes.list_path(conn, :show, id))
 
       assert %{
-               "id" => id,
+               "id" => ^id,
                "color" => "some color",
                "title" => "some title"
              } = json_response(conn, 200)["list"]
@@ -115,7 +115,7 @@ defmodule GtdToDoApiWeb.ListControllerTest do
       conn = get(conn, Routes.list_path(conn, :show, id))
 
       assert %{
-               "id" => id,
+               "id" => ^id,
                "color" => "some updated color",
                "title" => "some updated title"
              } = json_response(conn, 200)["list"]

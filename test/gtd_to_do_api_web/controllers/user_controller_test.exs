@@ -142,7 +142,7 @@ defmodule GtdToDoApiWeb.UserControllerTest do
       user = GtdToDoApi.Accounts.get_user!(id)
 
       assert %{
-               id: id,
+               id: ^id,
                avatar_url: "some avatar_url",
                email: "some email"
              } = user
@@ -164,7 +164,7 @@ defmodule GtdToDoApiWeb.UserControllerTest do
       conn = get(conn, Routes.user_path(conn, :show, id))
 
       assert %{
-               "id" => id,
+               "id" => ^id,
                "avatar_url" => "some updated avatar_url",
                "email" => "some updated email"
              } = json_response(conn, 200)["user"]

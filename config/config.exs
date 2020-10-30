@@ -15,7 +15,7 @@ config :gtd_to_do_api, GtdToDoApiWeb.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "vKumS965AlzfV+g/1zUucaJAabo+h/7TGgKTR5hWJgG09+rUCT0BIQUMbxlm7jfN",
   render_errors: [view: GtdToDoApiWeb.ErrorView, accepts: ~w(json)],
-  pubsub: [name: GtdToDoApi.PubSub, adapter: Phoenix.PubSub.PG2]
+  pubsub_server: GtdToDoApi.PubSub
 
 # Configures Elixir's Logger
 config :logger, :console,

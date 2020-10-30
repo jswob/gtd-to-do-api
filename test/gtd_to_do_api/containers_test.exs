@@ -132,7 +132,7 @@ defmodule GtdToDoApi.ContainersTest do
       owner = user_fixture()
       %Bucket{id: bucket_id} = bucket = bucket_fixture(owner)
       assert {:error, %Ecto.Changeset{}} = Containers.update_bucket(owner, bucket, @invalid_attrs)
-      assert %Bucket{id: bucket_id} = Containers.get_bucket!(bucket_id)
+      assert %Bucket{id: ^bucket_id} = Containers.get_bucket!(bucket_id)
     end
 
     test "delete_bucket/1 deletes the bucket and removes relationships" do
