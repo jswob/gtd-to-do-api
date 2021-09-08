@@ -40,7 +40,7 @@ defmodule GtdToDoApiWeb.Endpoint do
     key: "_gtd_to_do_api_key",
     signing_salt: "8UlPbxLc"
 
-  plug CORSPlug, origin: ["http://localhost:4200"]
+  plug CORSPlug, origin: ["http://localhost:4200", "https://gtd-to-do-client.herokuapp.com/"]
 
   plug GtdToDoApiWeb.Router
 end
